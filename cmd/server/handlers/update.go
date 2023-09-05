@@ -14,7 +14,7 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	var newMetricValue metrics.AbstractMetric
 	urlParams := strings.Split(req.URL.String(), "/")
 	if len(urlParams) < 5 {
-		http.Error(res, "Not enough data", http.StatusBadRequest)
+		http.Error(res, "Not enough data", http.StatusNotFound)
 		return
 	}
 	urlMetricType := urlParams[2]
