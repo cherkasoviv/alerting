@@ -64,7 +64,7 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	}
 	err := newMetricValue.UpdateValue(metricRequestValue)
 	if err != nil {
-		http.Error(res, "Wrong metric value", http.StatusBadRequest)
+		http.Error(res, "Wrong value", http.StatusBadRequest)
 		return
 	}
 
