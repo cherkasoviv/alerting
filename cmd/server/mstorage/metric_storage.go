@@ -1,7 +1,7 @@
 package mstorage
 
 import (
-	metric "alerting/internal/metrics"
+	metric "alerting/cmd/server/metrics"
 )
 
 type MetricStorage interface {

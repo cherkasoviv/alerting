@@ -15,7 +15,7 @@ func (counterMetric *CounterMetric) UpdateValue(newValue string) error {
 	newIntValue, err := strconv.ParseInt(newValue, 10, 64)
 
 	if err == nil {
-		counterMetric.value = newIntValue
+		counterMetric.value += newIntValue
 		return nil
 	} else {
 		return err

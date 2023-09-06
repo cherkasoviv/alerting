@@ -16,7 +16,7 @@ func (gaugeMetric *GaugeMetric) UpdateValue(newValue string) error {
 	newFloatValue, err := strconv.ParseFloat(newValue, 64)
 
 	if err == nil {
-		gaugeMetric.Value += newFloatValue
+		gaugeMetric.Value = newFloatValue
 		return nil
 	} else {
 		return err

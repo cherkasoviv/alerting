@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	metrics "alerting/internal/metrics"
+	metrics2 "alerting/cmd/server/metrics"
 	"net/http"
 	"strings"
 )
@@ -10,8 +10,8 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		return
 	}
-	var metricRequestType metrics.MetricType
-	var newMetricValue metrics.AbstractMetric
+	var metricRequestType metrics2.MetricType
+	var newMetricValue metrics2.AbstractMetric
 	urlParams := strings.Split(req.URL.String(), "/")
 	if len(urlParams) < 5 {
 		http.Error(res, "Not enough data", http.StatusNotFound)
@@ -27,11 +27,11 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	switch urlMetricType {
 	case "counter":
 		{
-			metricRequestType = metrics.Counter
+			metricRequestType = metrics2.Counter
 		}
 	case "gauge":
 		{
-			metricRequestType = metrics.Gauge
+			metricRequestType = metrics2.Gauge
 		}
 	default:
 		{
@@ -41,23 +41,23 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	}
 
 	switch metricRequestType {
-	case metrics.Counter:
+	case metrics2.Counter:
 		{
-			cMetric := metrics.Metric{
+			cMetric := metrics2.Metric{
 				Name:  metricRequestName,
-				Mtype: metrics.Counter,
+				Mtype: metrics2.Counter,
 			}
-			newMetricValue = &metrics.CounterMetric{
+			newMetricValue = &metrics2.CounterMetric{
 				CMetric: cMetric,
 			}
 		}
-	case metrics.Gauge:
+	case metrics2.Gauge:
 		{
-			gMetric := metrics.Metric{
+			gMetric := metrics2.Metric{
 				Name:  metricRequestName,
-				Mtype: metrics.Gauge,
+				Mtype: metrics2.Gauge,
 			}
-			newMetricValue = &metrics.GaugeMetric{
+			newMetricValue = &metrics2.GaugeMetric{
 				GMetric: gMetric,
 			}
 		}
