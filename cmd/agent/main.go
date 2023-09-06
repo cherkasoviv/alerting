@@ -79,12 +79,17 @@ func sendMetric(name string, value string, mType string) error {
 	url := URL + mType + "/" + name + "/" + value
 	fmt.Println(url)
 	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return err
+	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	fmt.Println(resp)
-	defer resp.Body.Close()
+
+	if resp != nil {
+		resp.Body.Close()
+	}
 
 	if err != nil {
 		return err
