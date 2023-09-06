@@ -12,7 +12,7 @@ import (
 
 const URL = "http://localhost:8080/update/"
 
-var RUNTIME_GAUGE_METRICS = []string{
+var RuntimeGaugeMetrics = []string{
 	"Alloc",
 	"BuckHashSys",
 	"Frees",
@@ -50,7 +50,7 @@ func main() {
 		runtime.ReadMemStats(&currentStats)
 		rStats := reflect.ValueOf(currentStats)
 		if counter%5 == 0 {
-			for _, metricName := range RUNTIME_GAUGE_METRICS {
+			for _, metricName := range RuntimeGaugeMetrics {
 				field := rStats.FieldByName(metricName)
 
 				switch field.Interface().(type) {
