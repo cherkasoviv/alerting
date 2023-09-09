@@ -9,15 +9,10 @@ import (
 )
 
 func main() {
-	var MemStorage mstorage.MetricStorage
+	var MemStorage mstorage.MetricStorage = mstorage.InMemoryStorage{
+		Storage: map[string]metric.AbstractMetric{}}
 
-	MemStorage = mstorage.InMemoryStorage{
-		Storage: map[string]metric.AbstractMetric{},
-	}
-
-	var mHandler handlers.MetricHandler
-
-	mHandler = handlers.MetricHandler{
+	mHandler := handlers.MetricHandler{
 		Storage: &MemStorage,
 	}
 	r := chi.NewRouter()

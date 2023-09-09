@@ -1,24 +1,32 @@
 package handlers
 
 import (
+	"alerting/cmd/server/mstorage"
 	"net/http"
 	"testing"
 )
 
-func TestUpdateRequest(t *testing.T) {
+func TestMetricHandler_UpdateRequest(t *testing.T) {
+	type fields struct {
+		Storage *mstorage.MetricStorage
+	}
 	type args struct {
 		res http.ResponseWriter
 		req *http.Request
 	}
 	tests := []struct {
-		name string
-		args args
+		name   string
+		fields fields
+		args   args
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			UpdateRequest(tt.args.res, tt.args.req)
+			m := MetricHandler{
+				Storage: tt.fields.Storage,
+			}
+			m.UpdateRequest(tt.args.res, tt.args.req)
 		})
 	}
 }
