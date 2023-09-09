@@ -57,14 +57,14 @@ func main() {
 					}
 				case float64:
 					{
-						fieldValue = strconv.FormatFloat(field.Float(), 'f', 2, 64)
+						fieldValue = strconv.FormatFloat(field.Float(), 'f', 3, 64)
 					}
 				}
 
 				sendMetric(metricName, fieldValue, "gauge")
 			}
 			sendMetric("PollCount", "5", "counter")
-			sendMetric("RandomValue", strconv.FormatFloat(rand.Float64(), 'f', 2, 64), "gauge")
+			sendMetric("RandomValue", strconv.FormatFloat(rand.Float64(), 'f', 3, 64), "gauge")
 
 		}
 		counter++
