@@ -23,6 +23,10 @@ func (counterMetric *CounterMetric) UpdateValue(newValue string) error {
 	}
 }
 
-func (counterMetric CounterMetric) String() (string, error) {
+func (counterMetric *CounterMetric) String() (string, error) {
 	return counterMetric.GetName() + ":" + strconv.FormatUint(counterMetric.value, 10), nil
+}
+
+func (counterMetric *CounterMetric) GetValue() string {
+	return strconv.FormatUint(counterMetric.value, 10)
 }

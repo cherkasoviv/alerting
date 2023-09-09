@@ -21,8 +21,8 @@ func (m MetricHandler) ValueMetricByName(res http.ResponseWriter, req *http.Requ
 	metricName := chi.URLParam(req, "metricName")
 	metric, exist, err := str.FindMetric(metricName)
 	if exist && err == nil {
-		metricAsString, _ := metric.String()
-		res.Write([]byte(metricAsString))
+
+		res.Write([]byte(metric.GetValue()))
 
 	} else {
 		http.Error(res, "No such metric", http.StatusNotFound)
