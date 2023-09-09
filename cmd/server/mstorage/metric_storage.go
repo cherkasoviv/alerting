@@ -1,10 +1,11 @@
 package mstorage
 
 import (
-	metric "alerting/cmd/server/metrics"
+	metric "alerting/internal/metrics"
 )
 
 type MetricStorage interface {
-	CreateOrUpdateMetric(m *metric.Metric) error
-	FindMetric(name string) (*metric.Metric, bool, error)
+	CreateOrUpdateMetric(m metric.AbstractMetric) error
+	FindMetric(name string) (metric.AbstractMetric, bool, error)
+	FindAllMetrics() (map[string]metric.AbstractMetric, error)
 }

@@ -1,16 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"github.com/go-resty/resty/v2"
 	"math/rand"
-	"net/http"
 	"reflect"
 	"runtime"
 	"strconv"
 	"time"
 )
-
-const URL = "http://localhost:8080/update/"
 
 var RuntimeGaugeMetrics = []string{
 	"Alloc",
@@ -76,23 +73,18 @@ func main() {
 }
 
 func sendMetric(name string, value string, mType string) error {
-	url := URL + mType + "/" + name + "/" + value
-	fmt.Println(url)
-	req, err := http.NewRequest(http.MethodPost, url, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-
-	if resp != nil {
-		resp.Body.Close()
-	}
+	client := resty.New()
+	_, err := client.R().SetPathParams(map[string]string{
+		"metricName":  name,
+		"metricValue": value,
+		"metricType":  mType,
+	}).
+		Post("http://localhost:8080/update/{metricType}/{metricName}/{metricValue}")
 
 	if err != nil {
 		return err
 	}
-	return nil
+	return err
+
 }

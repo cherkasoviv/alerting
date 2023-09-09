@@ -1,25 +1,31 @@
 package handlers
 
 import (
-	metrics2 "alerting/cmd/server/metrics"
+	"alerting/cmd/server/mstorage"
+	"alerting/internal/metrics"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strings"
 )
 
-func UpdateRequest(res http.ResponseWriter, req *http.Request) {
+type MetricHandler struct {
+	Storage *mstorage.MetricStorage
+}
+
+func (m MetricHandler) UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		return
 	}
-	var metricRequestType metrics2.MetricType
-	var newMetricValue metrics2.AbstractMetric
+	var metricRequestType metrics.MetricType
+	var newMetricValue metrics.AbstractMetric
 	urlParams := strings.Split(req.URL.String(), "/")
 	if len(urlParams) < 5 {
 		http.Error(res, "Not enough data", http.StatusNotFound)
 		return
 	}
-	urlMetricType := urlParams[2]
-	metricRequestName := urlParams[3]
-	metricRequestValue := urlParams[4]
+	urlMetricType := chi.URLParam(req, "metricType")
+	metricRequestName := chi.URLParam(req, "metricName")
+	metricRequestValue := chi.URLParam(req, "metricValue")
 	if len(metricRequestName) == 0 {
 		http.Error(res, "Wrong metric Name", http.StatusNotFound)
 		return
@@ -27,11 +33,11 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 	switch urlMetricType {
 	case "counter":
 		{
-			metricRequestType = metrics2.Counter
+			metricRequestType = metrics.Counter
 		}
 	case "gauge":
 		{
-			metricRequestType = metrics2.Gauge
+			metricRequestType = metrics.Gauge
 		}
 	default:
 		{
@@ -39,30 +45,37 @@ func UpdateRequest(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
-
+	str := *m.Storage
 	switch metricRequestType {
-	case metrics2.Counter:
+	case metrics.Counter:
 		{
-			cMetric := metrics2.Metric{
-				Name:  metricRequestName,
-				Mtype: metrics2.Counter,
+			var exists bool
+			newMetricValue, exists, _ = str.FindMetric(metricRequestName)
+			if !exists {
+				cMetric := metrics.Metric{
+					Name:  metricRequestName,
+					Mtype: metrics.Counter,
+				}
+				newMetricValue = &metrics.CounterMetric{
+					CMetric: cMetric,
+				}
 			}
-			newMetricValue = &metrics2.CounterMetric{
-				CMetric: cMetric,
-			}
+
 		}
-	case metrics2.Gauge:
+	case metrics.Gauge:
 		{
-			gMetric := metrics2.Metric{
+			gMetric := metrics.Metric{
 				Name:  metricRequestName,
-				Mtype: metrics2.Gauge,
+				Mtype: metrics.Gauge,
 			}
-			newMetricValue = &metrics2.GaugeMetric{
+			newMetricValue = &metrics.GaugeMetric{
 				GMetric: gMetric,
 			}
 		}
 	}
 	err := newMetricValue.UpdateValue(metricRequestValue)
+	str.CreateOrUpdateMetric(newMetricValue)
+
 	if err != nil {
 		http.Error(res, "Wrong value", http.StatusBadRequest)
 		return

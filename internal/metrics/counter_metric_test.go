@@ -5,7 +5,7 @@ import "testing"
 func TestCounterMetric_GetName(t *testing.T) {
 	type fields struct {
 		CMetric Metric
-		value   int64
+		value   uint64
 	}
 	tests := []struct {
 		name   string
@@ -30,7 +30,7 @@ func TestCounterMetric_GetName(t *testing.T) {
 func TestCounterMetric_UpdateValue(t *testing.T) {
 	type fields struct {
 		CMetric Metric
-		value   int64
+		value   uint64
 	}
 	type args struct {
 		newValue string

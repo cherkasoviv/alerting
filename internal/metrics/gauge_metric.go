@@ -22,3 +22,7 @@ func (gaugeMetric *GaugeMetric) UpdateValue(newValue string) error {
 		return err
 	}
 }
+
+func (gaugeMetric *GaugeMetric) String() (string, error) {
+	return gaugeMetric.GetName() + ":" + strconv.FormatFloat(gaugeMetric.Value, 'f', 2, 64), nil
+}
