@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"alerting/cmd/server/mstorage"
 	"alerting/internal/metrics"
+	"alerting/internal/mstorage"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strings"

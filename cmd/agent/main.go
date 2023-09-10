@@ -42,11 +42,14 @@ var RuntimeGaugeMetrics = []string{
 func main() {
 	var currentStats runtime.MemStats
 	var fieldValue string
+
+	parseFlags()
+
 	counter := 0
 	for {
 		runtime.ReadMemStats(&currentStats)
 		rStats := reflect.ValueOf(currentStats)
-		if counter%5 == 0 {
+		if counter%reportInterval == 0 {
 			for _, metricName := range RuntimeGaugeMetrics {
 				field := rStats.FieldByName(metricName)
 
@@ -68,19 +71,20 @@ func main() {
 
 		}
 		counter++
-		time.Sleep(2 * time.Second)
+		counter = counter % (pollInterval * reportInterval)
+		time.Sleep(1 * time.Second)
 	}
 }
 
 func sendMetric(name string, value string, mType string) error {
-
+	sendAddr := "http://" + flagRunAddr + "/update/{metricType}/{metricName}/{metricValue}"
 	client := resty.New()
 	_, err := client.R().SetPathParams(map[string]string{
 		"metricName":  name,
 		"metricValue": value,
 		"metricType":  mType,
 	}).
-		Post("http://localhost:8080/update/{metricType}/{metricName}/{metricValue}")
+		Post(sendAddr)
 
 	if err != nil {
 		return err

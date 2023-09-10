@@ -2,7 +2,6 @@ package mstorage
 
 import (
 	metric "alerting/internal/metrics"
-	"fmt"
 )
 
 type InMemoryStorage struct {
@@ -15,7 +14,6 @@ func (st InMemoryStorage) FindAllMetrics() (map[string]metric.AbstractMetric, er
 
 func (st InMemoryStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
 	name := m.GetName()
-	fmt.Println(name)
 	st.Storage[name] = m
 	return nil
 }

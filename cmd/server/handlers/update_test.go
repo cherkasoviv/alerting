@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"alerting/cmd/server/mstorage"
+	"alerting/internal/mstorage"
 	"net/http"
 	"testing"
 )
