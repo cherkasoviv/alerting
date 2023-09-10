@@ -24,9 +24,9 @@ func (gaugeMetric *GaugeMetric) UpdateValue(newValue string) error {
 }
 
 func (gaugeMetric *GaugeMetric) String() (string, error) {
-	return gaugeMetric.GetName() + ":" + strconv.FormatFloat(gaugeMetric.Value, 'f', 3, 64), nil
+	return gaugeMetric.GetName() + ":" + strconv.FormatFloat(gaugeMetric.Value, 'f', -1, 64), nil
 }
 
 func (gaugeMetric *GaugeMetric) GetValue() string {
-	return strconv.FormatFloat(gaugeMetric.Value, 'f', 3, 64)
+	return strconv.FormatFloat(gaugeMetric.Value, 'f', -1, 64)
 }
