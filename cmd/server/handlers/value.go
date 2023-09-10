@@ -9,7 +9,7 @@ func (m MetricHandler) ValueAllMetrics(res http.ResponseWriter, req *http.Reques
 	str := *m.Storage
 	allMetricsInStorage, _ := str.FindAllMetrics()
 	for _, metric := range allMetricsInStorage {
-		metricAsString, _ := metric.String()
+		metricAsString := metric.String()
 		res.Write([]byte(metricAsString))
 		res.Write([]byte("\n"))
 	}

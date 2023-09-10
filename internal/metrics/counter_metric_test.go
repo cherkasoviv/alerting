@@ -1,6 +1,9 @@
 package metrics
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestCounterMetric_GetName(t *testing.T) {
 	type fields struct {
@@ -12,7 +15,17 @@ func TestCounterMetric_GetName(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "simple_test",
+			fields: struct {
+				CMetric Metric
+				value   uint64
+			}{CMetric: struct {
+				Name  string
+				Mtype MetricType
+			}{Name: "counter", Mtype: Counter}, value: 0},
+			want: "counter",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -20,9 +33,75 @@ func TestCounterMetric_GetName(t *testing.T) {
 				CMetric: tt.fields.CMetric,
 				value:   tt.fields.value,
 			}
-			if got := counterMetric.GetName(); got != tt.want {
-				t.Errorf("GetName() = %v, want %v", got, tt.want)
+
+			assert.Equal(t, tt.want, counterMetric.GetName())
+
+		})
+	}
+}
+
+func TestCounterMetric_GetValue(t *testing.T) {
+	type fields struct {
+		CMetric Metric
+		value   uint64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "simple_test",
+			fields: struct {
+				CMetric Metric
+				value   uint64
+			}{CMetric: struct {
+				Name  string
+				Mtype MetricType
+			}{Name: "counter", Mtype: Counter}, value: 0},
+			want: "0",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			counterMetric := &CounterMetric{
+				CMetric: tt.fields.CMetric,
+				value:   tt.fields.value,
 			}
+			assert.Equal(t, tt.want, counterMetric.GetValue())
+		})
+	}
+}
+
+func TestCounterMetric_String(t *testing.T) {
+	type fields struct {
+		CMetric Metric
+		value   uint64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "simple_test",
+			fields: struct {
+				CMetric Metric
+				value   uint64
+			}{CMetric: struct {
+				Name  string
+				Mtype MetricType
+			}{Name: "counter", Mtype: Counter}, value: 0},
+			want: "counter:0",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			counterMetric := &CounterMetric{
+				CMetric: tt.fields.CMetric,
+				value:   tt.fields.value,
+			}
+			assert.Equal(t, tt.want, counterMetric.String())
 		})
 	}
 }
@@ -36,12 +115,29 @@ func TestCounterMetric_UpdateValue(t *testing.T) {
 		newValue string
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name      string
+		fields    fields
+		args      args
+		newFields fields
 	}{
-		// TODO: Add test cases.
+		{
+			name: "simple_test",
+			fields: struct {
+				CMetric Metric
+				value   uint64
+			}{CMetric: struct {
+				Name  string
+				Mtype MetricType
+			}{Name: "counter", Mtype: Counter}, value: 1},
+			newFields: struct {
+				CMetric Metric
+				value   uint64
+			}{CMetric: struct {
+				Name  string
+				Mtype MetricType
+			}{Name: "counter", Mtype: Counter}, value: 6},
+			args: struct{ newValue string }{newValue: "5"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -49,9 +145,12 @@ func TestCounterMetric_UpdateValue(t *testing.T) {
 				CMetric: tt.fields.CMetric,
 				value:   tt.fields.value,
 			}
-			if err := counterMetric.UpdateValue(tt.args.newValue); (err != nil) != tt.wantErr {
-				t.Errorf("UpdateValue() error = %v, wantErr %v", err, tt.wantErr)
+			updatedMetric := &CounterMetric{
+				CMetric: tt.newFields.CMetric,
+				value:   tt.newFields.value,
 			}
+			counterMetric.UpdateValue(tt.args.newValue)
+			assert.Equal(t, updatedMetric, counterMetric)
 		})
 	}
 }

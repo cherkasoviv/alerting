@@ -5,7 +5,6 @@ import (
 	"alerting/internal/mstorage"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strings"
 )
 
 type MetricHandler struct {
@@ -18,11 +17,7 @@ func (m MetricHandler) UpdateRequest(res http.ResponseWriter, req *http.Request)
 	}
 	var metricRequestType metrics.MetricType
 	var newMetricValue metrics.AbstractMetric
-	urlParams := strings.Split(req.URL.String(), "/")
-	if len(urlParams) < 5 {
-		http.Error(res, "Not enough data", http.StatusNotFound)
-		return
-	}
+
 	urlMetricType := chi.URLParam(req, "metricType")
 	metricRequestName := chi.URLParam(req, "metricName")
 	metricRequestValue := chi.URLParam(req, "metricValue")

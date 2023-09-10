@@ -11,7 +11,7 @@ type (
 	AbstractMetric interface {
 		UpdateValue(newValue string) error
 		GetName() string
-		String() (string, error)
+		String() string
 		GetValue() string
 	}
 )
