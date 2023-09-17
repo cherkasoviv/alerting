@@ -5,20 +5,29 @@ import (
 )
 
 type InMemoryStorage struct {
-	Storage map[string]metric.AbstractMetric
+	storage *map[string]metric.AbstractMetric
 }
 
-func (st InMemoryStorage) FindAllMetrics() (map[string]metric.AbstractMetric, error) {
-	return st.Storage, nil
+func New() *InMemoryStorage {
+	str := map[string]metric.AbstractMetric{}
+	var memStorage = InMemoryStorage{
+		storage: &str}
+	return &memStorage
 }
 
-func (st InMemoryStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
+func (st *InMemoryStorage) FindAllMetrics() (map[string]metric.AbstractMetric, error) {
+	return *st.storage, nil
+}
+
+func (st *InMemoryStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
 	name := m.GetName()
-	st.Storage[name] = m
+	str := *st.storage
+	str[name] = m
 	return nil
 }
 
-func (st InMemoryStorage) FindMetric(name string) (metric.AbstractMetric, bool, error) {
-	m, exists := st.Storage[name]
+func (st *InMemoryStorage) FindMetric(name string) (metric.AbstractMetric, bool, error) {
+	str := *st.storage
+	m, exists := str[name]
 	return m, exists, nil
 }

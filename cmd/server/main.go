@@ -1,36 +1,33 @@
 package main
 
 import (
-	"alerting/cmd/server/handlers"
-	metric "alerting/internal/metrics"
-	mstorage2 "alerting/internal/mstorage"
+	"alerting/internal/config"
+	"alerting/internal/handlers/metrics/update"
+	"alerting/internal/handlers/metrics/value"
+	mstorage "alerting/internal/mstorage"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 func main() {
-	var MemStorage mstorage2.MetricStorage = mstorage2.InMemoryStorage{
-		Storage: map[string]metric.AbstractMetric{}}
 
-	mHandler := handlers.MetricHandler{
-		Storage: &MemStorage,
-	}
-	parseFlags()
+	cfg := config.LoadServerConfig()
+	storage := mstorage.New()
+
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
-			r.Post("/", mHandler.UpdateRequest)
+			r.Post("/", update.CreateOrUpdate(storage))
 		})
 	})
-
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", mHandler.ValueAllMetrics)
+		r.Get("/", value.GetAll(storage))
 		r.Route("/value/{metricType}/{metricName}", func(r chi.Router) {
-			r.Get("/", mHandler.ValueMetricByName)
+			r.Get("/", value.GetByName(storage))
 		})
 	})
 
-	err := http.ListenAndServe(flagRunAddr, r)
+	err := http.ListenAndServe(cfg.Host, r)
 	if err != nil {
 		panic(err)
 	}

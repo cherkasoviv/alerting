@@ -1,7 +1,6 @@
-package handlers
+package update
 
 import (
-	metric "alerting/internal/metrics"
 	mstorage "alerting/internal/mstorage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-resty/resty/v2"
@@ -13,24 +12,12 @@ import (
 
 func TestMetricHandler_UpdateRequest(t *testing.T) {
 
-	var MemStorage mstorage.MetricStorage = mstorage.InMemoryStorage{
-		Storage: map[string]metric.AbstractMetric{}}
-
-	mHandler := MetricHandler{
-		Storage: &MemStorage,
-	}
+	storage := mstorage.New()
 
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
-			r.Post("/", mHandler.UpdateRequest)
-		})
-	})
-
-	r.Route("/", func(r chi.Router) {
-		r.Get("/", mHandler.ValueAllMetrics)
-		r.Route("/value/{metricType}/{metricName}", func(r chi.Router) {
-			r.Get("/", mHandler.ValueMetricByName)
+			r.Post("/", CreateOrUpdate(storage))
 		})
 	})
 

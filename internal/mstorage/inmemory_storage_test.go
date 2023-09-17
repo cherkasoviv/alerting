@@ -6,29 +6,29 @@ import (
 	"testing"
 )
 
-func TestInMemoryStorage_FindAllMetrics(t *testing.T) {
+func TestInMemorystorage_FindAllMetrics(t *testing.T) {
 	type fields struct {
-		Storage map[string]metric.AbstractMetric
+		storage *map[string]metric.AbstractMetric
 	}
 	tests := []struct {
 		name    string
 		fields  fields
-		want    map[string]metric.AbstractMetric
+		want    *map[string]metric.AbstractMetric
 		wantErr bool
 	}{
 		{
-			name: "Empyy Storage",
+			name: "Empty storage",
 			fields: struct {
-				Storage map[string]metric.AbstractMetric
-			}{Storage: map[string]metric.AbstractMetric{}},
-			want:    map[string]metric.AbstractMetric{},
+				storage *map[string]metric.AbstractMetric
+			}{storage: &map[string]metric.AbstractMetric{}},
+			want:    &map[string]metric.AbstractMetric{},
 			wantErr: false,
 		},
 		{
-			name: "Nonempty Storage",
+			name: "Nonempty storage",
 			fields: struct {
-				Storage map[string]metric.AbstractMetric
-			}{Storage: map[string]metric.AbstractMetric{
+				storage *map[string]metric.AbstractMetric
+			}{storage: &map[string]metric.AbstractMetric{
 				"testMetric": &metric.GaugeMetric{
 					GMetric: struct {
 						Name  string
@@ -37,7 +37,7 @@ func TestInMemoryStorage_FindAllMetrics(t *testing.T) {
 					Value: 0,
 				},
 			}},
-			want: map[string]metric.AbstractMetric{
+			want: &map[string]metric.AbstractMetric{
 				"testMetric": &metric.GaugeMetric{
 					GMetric: struct {
 						Name  string
@@ -52,14 +52,14 @@ func TestInMemoryStorage_FindAllMetrics(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			st := InMemoryStorage{
-				Storage: tt.fields.Storage,
+				storage: tt.fields.storage,
 			}
 			got, err := st.FindAllMetrics()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FindAllMetrics() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !reflect.DeepEqual(got, *tt.want) {
 				t.Errorf("FindAllMetrics() got = %v, want %v", got, tt.want)
 			}
 		})
