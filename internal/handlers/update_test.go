@@ -1,4 +1,4 @@
-package update
+package handlers
 
 import (
 	mstorage "alerting/internal/mstorage"
@@ -13,11 +13,11 @@ import (
 func TestMetricHandler_UpdateRequest(t *testing.T) {
 
 	storage := mstorage.New()
-
+	updateHandler := NewUpdateHandler(storage)
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
-			r.Post("/", CreateOrUpdate(storage))
+			r.Post("/", updateHandler.CreateOrUpdate())
 		})
 	})
 

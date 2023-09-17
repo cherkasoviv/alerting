@@ -1,4 +1,4 @@
-package utils
+package agent
 
 import (
 	"alerting/internal/config"

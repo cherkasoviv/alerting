@@ -1,4 +1,4 @@
-package update
+package handlers
 
 import (
 	"alerting/internal/metrics"
@@ -6,12 +6,20 @@ import (
 	"net/http"
 )
 
+type UpdateHandler struct {
+	storage MetricSaver
+}
+
 type MetricSaver interface {
 	CreateOrUpdateMetric(m metrics.AbstractMetric) error
 	FindMetric(name string) (metrics.AbstractMetric, bool, error)
 }
 
-func CreateOrUpdate(storage MetricSaver) http.HandlerFunc {
+func NewUpdateHandler(str MetricSaver) *UpdateHandler {
+	return &UpdateHandler{storage: str}
+}
+
+func (uhandler *UpdateHandler) CreateOrUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodPost {
@@ -47,7 +55,7 @@ func CreateOrUpdate(storage MetricSaver) http.HandlerFunc {
 		case metrics.Counter:
 			{
 				var exists bool
-				newMetricValue, exists, _ = storage.FindMetric(metricRequestName)
+				newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
 				if !exists {
 					cMetric := metrics.Metric{
 						Name:  metricRequestName,
@@ -71,7 +79,7 @@ func CreateOrUpdate(storage MetricSaver) http.HandlerFunc {
 			}
 		}
 		err := newMetricValue.UpdateValue(metricRequestValue)
-		storage.CreateOrUpdateMetric(newMetricValue)
+		uhandler.storage.CreateOrUpdateMetric(newMetricValue)
 
 		if err != nil {
 			http.Error(w, "Wrong value", http.StatusBadRequest)

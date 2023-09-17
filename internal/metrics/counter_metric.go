@@ -15,12 +15,11 @@ func (counterMetric *CounterMetric) GetName() string {
 func (counterMetric *CounterMetric) UpdateValue(newValue string) error {
 	newIntValue, err := strconv.ParseUint(newValue, 10, 64)
 
-	if err == nil {
-		counterMetric.value += newIntValue
-		return nil
-	} else {
+	if err != nil {
 		return err
 	}
+	counterMetric.value += newIntValue
+	return nil
 }
 
 func (counterMetric *CounterMetric) String() string {
