@@ -6,20 +6,20 @@ import (
 	"net/http"
 )
 
-type UpdateHandler struct {
-	storage MetricSaver
+type updateHandler struct {
+	storage metricSaver
 }
 
-type MetricSaver interface {
+type metricSaver interface {
 	CreateOrUpdateMetric(m metrics.AbstractMetric) error
 	FindMetric(name string) (metrics.AbstractMetric, bool, error)
 }
 
-func NewUpdateHandler(str MetricSaver) *UpdateHandler {
-	return &UpdateHandler{storage: str}
+func NewUpdateHandler(str metricSaver) *updateHandler {
+	return &updateHandler{storage: str}
 }
 
-func (uhandler *UpdateHandler) CreateOrUpdate() http.HandlerFunc {
+func (uhandler *updateHandler) CreateOrUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodPost {

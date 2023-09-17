@@ -6,20 +6,20 @@ import (
 	"net/http"
 )
 
-type ValueHandler struct {
-	storage MetricGetter
+type valueHandler struct {
+	storage metricGetter
 }
 
-type MetricGetter interface {
+type metricGetter interface {
 	FindMetric(name string) (metric.AbstractMetric, bool, error)
 	FindAllMetrics() (map[string]metric.AbstractMetric, error)
 }
 
-func NewValueHandler(str MetricGetter) *ValueHandler {
-	return &ValueHandler{storage: str}
+func NewValueHandler(str metricGetter) *valueHandler {
+	return &valueHandler{storage: str}
 }
 
-func (vhandler *ValueHandler) GetAll() http.HandlerFunc {
+func (vhandler *valueHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		allMetricsInStorage, _ := vhandler.storage.FindAllMetrics()
@@ -31,7 +31,7 @@ func (vhandler *ValueHandler) GetAll() http.HandlerFunc {
 	}
 }
 
-func (vhandler *ValueHandler) GetByName() http.HandlerFunc {
+func (vhandler *valueHandler) GetByName() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		metricName := chi.URLParam(r, "metricName")
