@@ -86,5 +86,7 @@ func (uhandler *updateHandler) CreateOrUpdate() http.HandlerFunc {
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
+
 	}
 }
