@@ -156,7 +156,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 					GMetric: gMetric,
 				}
 
-				newRequestValueForMetric = strconv.FormatFloat(req.Value, 'f', 3, 64)
+				newRequestValueForMetric = strconv.FormatFloat(req.Value, 'f', 20, 64)
 			}
 		default:
 			{

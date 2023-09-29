@@ -45,7 +45,6 @@ func main() {
 		})
 
 	})
-	//TODO Добавить роут для обработки апдейта из JSON
 	err = http.ListenAndServe(cfg.Host, r)
 	if err != nil {
 		panic(err)
