@@ -36,13 +36,13 @@ func main() {
 	})
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", valueHandler.GetAll())
-		r.Route("/value/{metricType}/{metricName}", func(r chi.Router) {
-			r.Get("/", valueHandler.GetByName())
-		})
-	})
+		r.Route("/value", func(r chi.Router) {
+			r.Post("/", valueHandler.GetJSON())
 
-	r.Route("/value", func(r chi.Router) {
-		r.Post("/", valueHandler.GetJSON())
+			r.Route("/{metricType}/{metricName}", func(r chi.Router) {
+				r.Get("/", valueHandler.GetByName())
+			})
+		})
 
 	})
 	//TODO Добавить роут для обработки апдейта из JSON
