@@ -13,6 +13,7 @@ type (
 		GetName() string
 		String() string
 		GetValue() string
+		GetType() string
 	}
 )
 

@@ -17,7 +17,7 @@ func TestMetricHandler_UpdateRequest(t *testing.T) {
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
-			r.Post("/", updateHandler.CreateOrUpdate())
+			r.Post("/", updateHandler.CreateOrUpdateFromURLPath())
 		})
 	})
 
@@ -46,4 +46,51 @@ func TestMetricHandler_UpdateRequest(t *testing.T) {
 
 		})
 	}
+}
+
+func Test_updateHandler_CreateOrUpdateFromJSON(t *testing.T) {
+	storage := mstorage.New()
+	updateHandler := NewUpdateHandler(storage)
+
+	r := chi.NewRouter()
+	r.Route("/update", func(r chi.Router) {
+		r.Post("/", updateHandler.CreateOrUpdateFromJSON())
+	})
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	testCases := []struct {
+		name                 string
+		method               string
+		requestURL           string
+		expectedCode         int
+		requestJSON          string
+		expectedResponseJSON string
+	}{
+		{name: "success gauge", method: http.MethodPost, requestURL: "/update", expectedCode: http.StatusOK,
+			requestJSON:          "{\"id\":\"testGauge\" , \"type\": \"gauge\",\"value\":1}\n}",
+			expectedResponseJSON: "{\"id\":\"testGauge\",\"type\":\"gauge\",\"value\":1}\n"},
+		{name: "success counter", method: http.MethodPost, requestURL: "/update", expectedCode: http.StatusOK,
+			requestJSON:          "{\"id\":\"testCounter\" , \"type\": \"counter\",\"delta\":1}\n}",
+			expectedResponseJSON: "{\"id\":\"testCounter\",\"type\":\"counter\",\"delta\":1}\n"},
+		{name: "error json", method: http.MethodPost, requestURL: "/update", expectedCode: http.StatusBadRequest,
+			requestJSON:          "{\"name\":\"test\" ,\"type\":\"gauge\"}",
+			expectedResponseJSON: ""},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := resty.New().R()
+			req.Method = tc.method
+			req.URL = ts.URL + tc.requestURL
+			req.SetBody(tc.requestJSON)
+			resp, err := req.Send()
+			assert.NoError(t, err, "error making HTTP request")
+			assert.Equal(t, tc.expectedCode, resp.StatusCode(), "Response code didn't match expected")
+			assert.Equal(t, tc.expectedResponseJSON, string(resp.Body()))
+
+		})
+	}
+
 }

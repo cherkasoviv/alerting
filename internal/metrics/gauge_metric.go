@@ -30,3 +30,7 @@ func (gaugeMetric *GaugeMetric) String() string {
 func (gaugeMetric *GaugeMetric) GetValue() string {
 	return strconv.FormatFloat(gaugeMetric.Value, 'f', -1, 64)
 }
+
+func (gaugeMetric *GaugeMetric) GetType() string {
+	return string(gaugeMetric.GMetric.Mtype)
+}

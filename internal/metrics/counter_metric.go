@@ -6,7 +6,7 @@ import (
 
 type CounterMetric struct {
 	CMetric Metric
-	value   uint64
+	Value   uint64
 }
 
 func (counterMetric *CounterMetric) GetName() string {
@@ -18,14 +18,18 @@ func (counterMetric *CounterMetric) UpdateValue(newValue string) error {
 	if err != nil {
 		return err
 	}
-	counterMetric.value += newIntValue
+	counterMetric.Value += newIntValue
 	return nil
 }
 
 func (counterMetric *CounterMetric) String() string {
-	return counterMetric.GetName() + ":" + strconv.FormatUint(counterMetric.value, 10)
+	return counterMetric.GetName() + ":" + strconv.FormatUint(counterMetric.Value, 10)
 }
 
 func (counterMetric *CounterMetric) GetValue() string {
-	return strconv.FormatUint(counterMetric.value, 10)
+	return strconv.FormatUint(counterMetric.Value, 10)
+}
+
+func (counterMetric *CounterMetric) GetType() string {
+	return string(counterMetric.CMetric.Mtype)
 }

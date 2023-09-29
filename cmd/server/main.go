@@ -30,7 +30,7 @@ func main() {
 
 	r.Route("/update", func(r chi.Router) {
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
-			r.Post("/", updateHandler.CreateOrUpdate())
+			r.Post("/", updateHandler.CreateOrUpdateFromURLPath())
 		})
 	})
 	r.Route("/", func(r chi.Router) {
@@ -40,6 +40,11 @@ func main() {
 		})
 	})
 
+	r.Route("/value", func(r chi.Router) {
+		r.Post("/", valueHandler.GetJSON())
+
+	})
+	//TODO Добавить роут для обработки апдейта из JSON
 	err = http.ListenAndServe(cfg.Host, r)
 	if err != nil {
 		panic(err)
