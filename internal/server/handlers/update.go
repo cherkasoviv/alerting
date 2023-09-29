@@ -69,14 +69,18 @@ func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 
 		switch metricRequestType {
 		case metrics.Counter:
-			{
 
-				cMetric := metrics.Metric{
-					Name:  metricRequestName,
-					Mtype: metrics.Counter,
-				}
-				newMetricValue = &metrics.CounterMetric{
-					CMetric: cMetric,
+			{
+				var exists bool
+				newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
+				if !exists {
+					cMetric := metrics.Metric{
+						Name:  metricRequestName,
+						Mtype: metrics.Counter,
+					}
+					newMetricValue = &metrics.CounterMetric{
+						CMetric: cMetric,
+					}
 				}
 
 			}
@@ -128,15 +132,18 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 		switch req.MType {
 		case "counter":
 			{
-
-				cMetric := metrics.Metric{
-					Name:  metricRequestName,
-					Mtype: metrics.Counter,
+				var exists bool
+				newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
+				if !exists {
+					cMetric := metrics.Metric{
+						Name:  metricRequestName,
+						Mtype: metrics.Counter,
+					}
+					newMetricValue = &metrics.CounterMetric{
+						CMetric: cMetric,
+					}
+					newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
 				}
-				newMetricValue = &metrics.CounterMetric{
-					CMetric: cMetric,
-				}
-				newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
 			}
 		case "gauge":
 			{
@@ -170,6 +177,11 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 			return
 		}
 		metric, _, err := uhandler.storage.FindMetric(req.ID)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		resp := responseForJSONValueHandler{
 			ID:    metric.GetName(),
 			MType: metric.GetType(),
