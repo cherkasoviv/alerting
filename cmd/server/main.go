@@ -29,6 +29,7 @@ func main() {
 	r.Use(mwLogger.New(&sugar))
 
 	r.Route("/update", func(r chi.Router) {
+		r.Post("/", updateHandler.CreateOrUpdateFromJSON())
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
 			r.Post("/", updateHandler.CreateOrUpdateFromURLPath())
 		})
