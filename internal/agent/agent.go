@@ -93,8 +93,8 @@ func sendMetricJSON(cfg *config.AgentConfig, name string, value string, mType st
 			metricToSend.Delta = &intValue
 		}
 	}
-	req, err := json.Marshal(metricToSend)
-	_, err = client.R().SetBody(req).
+	req, _ := json.Marshal(metricToSend)
+	_, err := client.R().SetBody(req).
 		Post(sendAddr)
 
 	if err != nil {
