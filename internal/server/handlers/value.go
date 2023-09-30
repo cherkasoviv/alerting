@@ -2,10 +2,9 @@ package handlers
 
 import (
 	metric "alerting/internal/metrics"
-	"encoding/json"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
@@ -97,7 +96,11 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 		switch metric.GetType() {
 		case "gauge":
 			{
-				resp.Value, _ = strconv.ParseFloat(metric.GetValue(), 64)
+				resp.Value, err = strconv.ParseFloat(metric.GetValue(), 64)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 			}
 		case "counter":
 			{
@@ -105,16 +108,7 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 			}
 
 		}
-		logger, err := zap.NewProduction()
-		if err != nil {
-			panic(err)
-		}
-		defer logger.Sync()
-
-		sugar := *logger.Sugar()
-		jsonResp, err := json.Marshal(resp)
-		sugar.With(
-			zap.String("resp", string(jsonResp)))
+		fmt.Println(resp)
 		render.JSON(w, r, resp)
 
 	}
