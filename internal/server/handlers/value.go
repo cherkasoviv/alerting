@@ -17,8 +17,8 @@ type valueHandler struct {
 type responseForJSONValueHandler struct {
 	ID    string  `json:"id"`
 	MType string  `json:"type"`
-	Delta int64   `json:"delta,omitempty"`
-	Value float64 `json:"value,omitempty"`
+	Delta int64   `json:"delta"`
+	Value float64 `json:"value"`
 }
 
 type requestForJSONValueHandler struct {
