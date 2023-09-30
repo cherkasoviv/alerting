@@ -183,7 +183,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		resp := responseForJSONValueHandler{
+		resp := responseForJSONUpdateHandler{
 			ID:    metric.GetName(),
 			MType: metric.GetType(),
 		}
