@@ -116,6 +116,7 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 
 		}
 		fmt.Println(resp)
+		w.Header().Add("Content-Type", "html/text")
 		render.JSON(w, r, resp)
 
 	}
