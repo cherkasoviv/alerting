@@ -2,10 +2,12 @@ package mstorage
 
 import (
 	metric "alerting/internal/metrics"
+	"sync"
 )
 
 type InMemoryStorage struct {
 	storage map[string]metric.AbstractMetric
+	mx      sync.Mutex
 }
 
 func New() *InMemoryStorage {
@@ -20,6 +22,8 @@ func (st *InMemoryStorage) FindAllMetrics() (map[string]metric.AbstractMetric, e
 }
 
 func (st *InMemoryStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
+	st.mx.Lock()
+	defer st.mx.Unlock()
 	name := m.GetName()
 	str := st.storage
 	str[name] = m
