@@ -142,8 +142,9 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 					newMetricValue = &metrics.CounterMetric{
 						CMetric: cMetric,
 					}
-					newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
+
 				}
+				newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
 			}
 		case "gauge":
 			{
