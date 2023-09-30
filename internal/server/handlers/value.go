@@ -38,7 +38,7 @@ func NewValueHandler(str metricGetter) *valueHandler {
 func (vhandler *valueHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		w.Header().Add("Content-Type", "html/text")
+		w.Header().Add("Content-Type", "text/html")
 		allMetricsInStorage, _ := vhandler.storage.FindAllMetrics()
 		for _, metric := range allMetricsInStorage {
 			metricAsString := metric.String()
@@ -50,7 +50,7 @@ func (vhandler *valueHandler) GetAll() http.HandlerFunc {
 
 func (vhandler *valueHandler) GetByName() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "html/text")
+		w.Header().Add("Content-Type", "text/html")
 		metricName := chi.URLParam(r, "metricName")
 		metric, exist, err := vhandler.storage.FindMetric(metricName)
 		if exist && err == nil {
