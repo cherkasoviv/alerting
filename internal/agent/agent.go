@@ -39,12 +39,11 @@ func CollectMetrics(cfg *config.AgentConfig) {
 					}
 				}
 
-				sendMetric(cfg, metricName, fieldValue, "gauge")
 				sendMetricJSON(cfg, metricName, fieldValue, "gauge")
 			}
-			sendMetric(cfg, "PollCount", "5", "counter")
+
 			sendMetricJSON(cfg, "PollCount", "5", "counter")
-			sendMetric(cfg, "RandomValue", strconv.FormatFloat(rand.Float64(), 'f', -1, 64), "gauge")
+
 			sendMetricJSON(cfg, "RandomValue", strconv.FormatFloat(rand.Float64(), 'f', -1, 64), "gauge")
 		}
 		counter++
