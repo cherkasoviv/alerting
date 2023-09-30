@@ -61,7 +61,7 @@ func sendMetric(cfg *config.AgentConfig, name string, value string, mType string
 		"metricName":  name,
 		"metricValue": value,
 		"metricType":  mType,
-	}).
+	}).SetHeader("Accept-Encoding", "gzip").
 		Post(sendAddr)
 
 	if err != nil {
