@@ -2,8 +2,10 @@ package handlers
 
 import (
 	metric "alerting/internal/metrics"
+	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
@@ -103,6 +105,16 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 			}
 
 		}
+		logger, err := zap.NewProduction()
+		if err != nil {
+			panic(err)
+		}
+		defer logger.Sync()
+
+		sugar := *logger.Sugar()
+		jsonResp, err := json.Marshal(resp)
+		sugar.With(
+			zap.String("resp", string(jsonResp)))
 		render.JSON(w, r, resp)
 
 	}
