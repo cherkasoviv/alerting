@@ -10,6 +10,13 @@ import (
 	"time"
 )
 
+type metrics struct {
+	ID    string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+
 func CollectMetrics(cfg *config.AgentConfig) {
 	var currentStats runtime.MemStats
 	var fieldValue string
@@ -33,10 +40,12 @@ func CollectMetrics(cfg *config.AgentConfig) {
 				}
 
 				sendMetric(cfg, metricName, fieldValue, "gauge")
+				sendMetricJSON(cfg, metricName, fieldValue, "gauge")
 			}
 			sendMetric(cfg, "PollCount", "5", "counter")
+			sendMetricJSON(cfg, "PollCount", "5", "counter")
 			sendMetric(cfg, "RandomValue", strconv.FormatFloat(rand.Float64(), 'f', -1, 64), "gauge")
-
+			sendMetricJSON(cfg, "RandomValue", strconv.FormatFloat(rand.Float64(), 'f', -1, 64), "gauge")
 		}
 		counter++
 		counter = counter % (cfg.PollInterval * cfg.ReportInterval)
@@ -53,6 +62,39 @@ func sendMetric(cfg *config.AgentConfig, name string, value string, mType string
 		"metricValue": value,
 		"metricType":  mType,
 	}).
+		Post(sendAddr)
+
+	if err != nil {
+		return err
+	}
+	return err
+
+}
+
+func sendMetricJSON(cfg *config.AgentConfig, name string, value string, mType string) error {
+	sendAddr := "http://" + cfg.ServerURL + "/update/"
+	client := resty.New()
+	metricToSend := metrics{
+		ID:    name,
+		MType: mType,
+		Delta: nil,
+		Value: nil,
+	}
+
+	switch mType {
+	case "gauge":
+		{
+			floatValue, _ := strconv.ParseFloat(value, 64)
+			metricToSend.Value = &floatValue
+		}
+	case "counter":
+		{
+			intValue, _ := strconv.ParseInt(value, 10, 64)
+			metricToSend.Delta = &intValue
+		}
+	}
+
+	_, err := client.R().SetBody(metricToSend).
 		Post(sendAddr)
 
 	if err != nil {
