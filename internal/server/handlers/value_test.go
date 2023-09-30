@@ -51,10 +51,10 @@ func Test_valueHandler_GetJSON(t *testing.T) {
 	}{
 		{name: "success gauge", method: http.MethodPost, requestURL: "/value", expectedCode: http.StatusOK,
 			requestJSON:          "{\"id\":\"testGauge\" , \"type\": \"gauge\"}",
-			expectedResponseJSON: "{\"id\":\"testGauge\",\"type\":\"gauge\",\"delta\":0,\"value\":1}\n"},
+			expectedResponseJSON: "{\"id\":\"testGauge\",\"type\":\"gauge\",\"value\":1}\n"},
 		{name: "success counter", method: http.MethodPost, requestURL: "/value", expectedCode: http.StatusOK,
 			requestJSON:          "{\"id\":\"testCounter\" , \"type\": \"counter\"}",
-			expectedResponseJSON: "{\"id\":\"testCounter\",\"type\":\"counter\",\"delta\":1,\"value\":0}\n"},
+			expectedResponseJSON: "{\"id\":\"testCounter\",\"type\":\"counter\",\"delta\":1}\n"},
 		{name: "error json", method: http.MethodPost, requestURL: "/value", expectedCode: http.StatusBadRequest,
 			requestJSON:          "{\"name\":\"test\" ,\"type\":\"gauge\"}",
 			expectedResponseJSON: ""},
