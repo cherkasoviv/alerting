@@ -15,10 +15,10 @@ type valueHandler struct {
 }
 
 type responseForJSONValueHandler struct {
-	ID    string  `json:"id"`
-	MType string  `json:"type"`
-	Delta int64   `json:"delta"`
-	Value float64 `json:"value"`
+	ID    string   `json:"id"`
+	MType string   `json:"type"`
+	Delta *int64   `json:"delta,omitempty"`
+	Value *float64 `json:"value,omitempty"`
 }
 
 type requestForJSONValueHandler struct {
@@ -96,7 +96,9 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 		switch metric.GetType() {
 		case "gauge":
 			{
-				resp.Value, err = strconv.ParseFloat(metric.GetValue(), 64)
+
+				val, err := strconv.ParseFloat(metric.GetValue(), 64)
+				resp.Value = &val
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					return
@@ -104,7 +106,8 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 			}
 		case "counter":
 			{
-				resp.Delta, err = strconv.ParseInt(metric.GetValue(), 10, 64)
+				val, err := strconv.ParseInt(metric.GetValue(), 10, 64)
+				resp.Delta = &val
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					return

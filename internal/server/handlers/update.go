@@ -18,10 +18,10 @@ type metricSaver interface {
 }
 
 type responseForJSONUpdateHandler struct {
-	ID    string  `json:"id"`
-	MType string  `json:"type"`
-	Delta int64   `json:"delta"`
-	Value float64 `json:"value"`
+	ID    string   `json:"id"`
+	MType string   `json:"type"`
+	Delta *int64   `json:"delta,omitempty"`
+	Value *float64 `json:"value,omitempty"`
 }
 
 type requestForJSONUpdateHandler struct {
@@ -191,11 +191,13 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 		switch metric.GetType() {
 		case "gauge":
 			{
-				resp.Value, _ = strconv.ParseFloat(metric.GetValue(), 64)
+				val, _ := strconv.ParseFloat(metric.GetValue(), 64)
+				resp.Value = &val
 			}
 		case "counter":
 			{
-				resp.Delta, _ = strconv.ParseInt(metric.GetValue(), 10, 64)
+				delta, _ := strconv.ParseInt(metric.GetValue(), 10, 64)
+				resp.Delta = &delta
 			}
 
 		}
