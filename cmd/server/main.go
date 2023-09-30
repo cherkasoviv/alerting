@@ -5,6 +5,7 @@ import (
 	"alerting/internal/mstorage"
 	"alerting/internal/server/handlers"
 	mwLogger "alerting/internal/server/middleware/logger"
+	_ "encoding/json"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
