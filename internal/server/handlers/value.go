@@ -104,7 +104,11 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 			}
 		case "counter":
 			{
-				resp.Delta, _ = strconv.ParseInt(metric.GetValue(), 10, 64)
+				resp.Delta, err = strconv.ParseInt(metric.GetValue(), 10, 64)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 			}
 
 		}
