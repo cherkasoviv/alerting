@@ -2,6 +2,7 @@ package agent
 
 import (
 	"alerting/internal/config"
+	"encoding/json"
 	"github.com/go-resty/resty/v2"
 	"math/rand"
 	"reflect"
@@ -92,8 +93,8 @@ func sendMetricJSON(cfg *config.AgentConfig, name string, value string, mType st
 			metricToSend.Delta = &intValue
 		}
 	}
-
-	_, err := client.R().SetBody(metricToSend).
+	req, err := json.Marshal(metricToSend)
+	_, err = client.R().SetBody(req).
 		Post(sendAddr)
 
 	if err != nil {
