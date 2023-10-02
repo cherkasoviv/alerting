@@ -30,8 +30,8 @@ func TestCounterMetric_GetName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			counterMetric := &CounterMetric{
-				CMetric: tt.fields.CMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.CMetric,
+				Value:  tt.fields.value,
 			}
 
 			assert.Equal(t, tt.want, counterMetric.GetName())
@@ -65,8 +65,8 @@ func TestCounterMetric_GetValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			counterMetric := &CounterMetric{
-				CMetric: tt.fields.CMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.CMetric,
+				Value:  tt.fields.value,
 			}
 			assert.Equal(t, tt.want, counterMetric.GetValue())
 		})
@@ -98,8 +98,8 @@ func TestCounterMetric_String(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			counterMetric := &CounterMetric{
-				CMetric: tt.fields.CMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.CMetric,
+				Value:  tt.fields.value,
 			}
 			assert.Equal(t, tt.want, counterMetric.String())
 		})
@@ -142,12 +142,12 @@ func TestCounterMetric_UpdateValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			counterMetric := &CounterMetric{
-				CMetric: tt.fields.CMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.CMetric,
+				Value:  tt.fields.value,
 			}
 			updatedMetric := &CounterMetric{
-				CMetric: tt.newFields.CMetric,
-				Value:   tt.newFields.value,
+				Metric: tt.newFields.CMetric,
+				Value:  tt.newFields.value,
 			}
 			counterMetric.UpdateValue(tt.args.newValue)
 			assert.Equal(t, updatedMetric, counterMetric)

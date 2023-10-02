@@ -5,12 +5,12 @@ import (
 )
 
 type CounterMetric struct {
-	CMetric Metric
-	Value   uint64
+	Metric Metric
+	Value  uint64
 }
 
 func (counterMetric *CounterMetric) GetName() string {
-	return counterMetric.CMetric.Name
+	return counterMetric.Metric.Name
 }
 func (counterMetric *CounterMetric) UpdateValue(newValue string) error {
 	newIntValue, err := strconv.ParseUint(newValue, 10, 64)
@@ -31,5 +31,5 @@ func (counterMetric *CounterMetric) GetValue() string {
 }
 
 func (counterMetric *CounterMetric) GetType() string {
-	return string(counterMetric.CMetric.Mtype)
+	return string(counterMetric.Metric.Mtype)
 }

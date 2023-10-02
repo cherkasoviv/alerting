@@ -12,7 +12,7 @@ import (
 
 func TestMetricHandler_UpdateRequest(t *testing.T) {
 
-	storage := mstorage.New()
+	storage := mstorage.Initialize(nil)
 	updateHandler := NewUpdateHandler(storage)
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
@@ -49,7 +49,7 @@ func TestMetricHandler_UpdateRequest(t *testing.T) {
 }
 
 func Test_updateHandler_CreateOrUpdateFromJSON(t *testing.T) {
-	storage := mstorage.New()
+	storage := mstorage.Initialize(nil)
 	updateHandler := NewUpdateHandler(storage)
 
 	r := chi.NewRouter()

@@ -79,7 +79,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 						Mtype: metrics.Counter,
 					}
 					newMetricValue = &metrics.CounterMetric{
-						CMetric: cMetric,
+						Metric: cMetric,
 					}
 				}
 
@@ -91,7 +91,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 					Mtype: metrics.Gauge,
 				}
 				newMetricValue = &metrics.GaugeMetric{
-					GMetric: gMetric,
+					Metric: gMetric,
 				}
 			}
 		}
@@ -140,7 +140,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 						Mtype: metrics.Counter,
 					}
 					newMetricValue = &metrics.CounterMetric{
-						CMetric: cMetric,
+						Metric: cMetric,
 					}
 
 				}
@@ -154,7 +154,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 					Mtype: metrics.Gauge,
 				}
 				newMetricValue = &metrics.GaugeMetric{
-					GMetric: gMetric,
+					Metric: gMetric,
 				}
 
 				newRequestValueForMetric = strconv.FormatFloat(req.Value, 'f', 20, 64)

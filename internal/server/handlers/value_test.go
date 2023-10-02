@@ -12,17 +12,17 @@ import (
 )
 
 func Test_valueHandler_GetJSON(t *testing.T) {
-	storage := mstorage.New()
+	storage := mstorage.Initialize(nil)
 	valueHandler := NewValueHandler(storage)
 	gm := metrics.GaugeMetric{
-		GMetric: struct {
+		Metric: struct {
 			Name  string
 			Mtype metrics.MetricType
 		}{Name: "testGauge", Mtype: metrics.Gauge},
 		Value: 1,
 	}
 	cm := metrics.CounterMetric{
-		CMetric: struct {
+		Metric: struct {
 			Name  string
 			Mtype metrics.MetricType
 		}{Name: "testCounter", Mtype: metrics.Counter},

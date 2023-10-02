@@ -3,12 +3,12 @@ package metrics
 import "strconv"
 
 type GaugeMetric struct {
-	GMetric Metric
-	Value   float64
+	Metric Metric
+	Value  float64
 }
 
 func (gaugeMetric *GaugeMetric) GetName() string {
-	return gaugeMetric.GMetric.Name
+	return gaugeMetric.Metric.Name
 }
 
 func (gaugeMetric *GaugeMetric) UpdateValue(newValue string) error {
@@ -32,5 +32,5 @@ func (gaugeMetric *GaugeMetric) GetValue() string {
 }
 
 func (gaugeMetric *GaugeMetric) GetType() string {
-	return string(gaugeMetric.GMetric.Mtype)
+	return string(gaugeMetric.Metric.Mtype)
 }

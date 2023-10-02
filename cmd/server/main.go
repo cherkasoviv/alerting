@@ -15,7 +15,7 @@ import (
 func main() {
 
 	cfg := config.LoadServerConfig()
-	storage := mstorage.New()
+	storage := mstorage.Initialize(cfg)
 	updateHandler := handlers.NewUpdateHandler(storage)
 	valueHandler := handlers.NewValueHandler(storage)
 
@@ -48,6 +48,7 @@ func main() {
 
 	})
 	err = http.ListenAndServe(cfg.Host, r)
+
 	if err != nil {
 		panic(err)
 	}
