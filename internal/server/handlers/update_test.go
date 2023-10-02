@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"alerting/internal/config"
 	mstorage "alerting/internal/mstorage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-resty/resty/v2"
@@ -11,8 +12,13 @@ import (
 )
 
 func TestMetricHandler_UpdateRequest(t *testing.T) {
-
-	storage := mstorage.Initialize(nil)
+	cfg := config.ServerConfig{
+		Host:            "",
+		StoreInterval:   0,
+		FileStoragePath: "",
+		NeedToRestore:   false,
+	}
+	storage := mstorage.Initialize(&cfg)
 	updateHandler := NewUpdateHandler(storage)
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
@@ -49,7 +55,13 @@ func TestMetricHandler_UpdateRequest(t *testing.T) {
 }
 
 func Test_updateHandler_CreateOrUpdateFromJSON(t *testing.T) {
-	storage := mstorage.Initialize(nil)
+	cfg := config.ServerConfig{
+		Host:            "",
+		StoreInterval:   0,
+		FileStoragePath: "",
+		NeedToRestore:   false,
+	}
+	storage := mstorage.Initialize(&cfg)
 	updateHandler := NewUpdateHandler(storage)
 
 	r := chi.NewRouter()

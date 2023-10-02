@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"alerting/internal/config"
 	"alerting/internal/metrics"
 	"alerting/internal/mstorage"
 	"github.com/go-chi/chi/v5"
@@ -12,7 +13,13 @@ import (
 )
 
 func Test_valueHandler_GetJSON(t *testing.T) {
-	storage := mstorage.Initialize(nil)
+	cfg := config.ServerConfig{
+		Host:            "",
+		StoreInterval:   0,
+		FileStoragePath: "",
+		NeedToRestore:   false,
+	}
+	storage := mstorage.Initialize(&cfg)
 	valueHandler := NewValueHandler(storage)
 	gm := metrics.GaugeMetric{
 		Metric: struct {
