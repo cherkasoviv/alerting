@@ -13,7 +13,7 @@ import (
 )
 
 type InMemoryStorage struct {
-	storage          map[string]metric.AbstractMetric `json:"storage"`
+	storage          map[string]metric.AbstractMetric
 	mx               sync.Mutex
 	storagePath      string
 	storeInterval    time.Duration
