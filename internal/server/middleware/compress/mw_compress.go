@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"io"
 	"net/http"
-	"strings"
 )
 
 func GzipMiddleware() func(next http.Handler) http.Handler {
@@ -12,17 +11,6 @@ func GzipMiddleware() func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 
 			ow := w
-
-			acceptEncoding := r.Header.Get("Accept-Encoding")
-			supportsGzip := strings.Contains(acceptEncoding, "gzip")
-			if supportsGzip {
-
-				cw := newCompressWriter(w)
-
-				ow = cw
-
-				defer cw.Close()
-			}
 
 			next.ServeHTTP(ow, r)
 		}
