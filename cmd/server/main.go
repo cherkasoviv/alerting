@@ -4,10 +4,10 @@ import (
 	"alerting/internal/config"
 	"alerting/internal/mstorage"
 	"alerting/internal/server/handlers"
+	"alerting/internal/server/middleware/compress"
 	mwLogger "alerting/internal/server/middleware/logger"
 	_ "encoding/json"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -29,7 +29,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(mwLogger.New(&sugar))
-	r.Use(middleware.Compress(5, "application/json", "text/html"))
+	r.Use(compress.GzipMiddleware())
 	r.Route("/update", func(r chi.Router) {
 		r.Post("/", updateHandler.CreateOrUpdateFromJSON())
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
