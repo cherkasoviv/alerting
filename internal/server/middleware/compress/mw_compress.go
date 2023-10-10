@@ -15,7 +15,7 @@ func GzipMiddleware() func(next http.Handler) http.Handler {
 			ow := w
 
 			acceptEncoding := r.Header.Get("Accept-Encoding")
-			fmt.Println(acceptEncoding)
+			fmt.Println(string(acceptEncoding))
 			supportsGzip := strings.Contains(acceptEncoding, "gzip")
 			if supportsGzip {
 
