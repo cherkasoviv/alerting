@@ -15,7 +15,7 @@ func GzipMiddleware() func(next http.Handler) http.Handler {
 
 			acceptEncoding := r.Header.Get("Accept-Encoding")
 			supportsGzip := strings.Contains(acceptEncoding, "gzip")
-			if supportsGzip && len(acceptEncoding) > 0 {
+			if supportsGzip {
 
 				cw := newCompressWriter(w)
 
@@ -92,7 +92,7 @@ func newCompressReader(r io.ReadCloser) (*compressReader, error) {
 	}, nil
 }
 
-func (c *compressReader) Read(p []byte) (n int, err error) {
+func (c compressReader) Read(p []byte) (n int, err error) {
 	return c.zr.Read(p)
 }
 
