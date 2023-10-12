@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -16,10 +15,10 @@ func GzipMiddleware() func(next http.Handler) http.Handler {
 
 			acceptEncoding := r.Header.Get("Accept-Encoding")
 			supportsGzip := strings.Contains(acceptEncoding, "gzip")
-			respLength, _ := strconv.ParseInt(ow.Header().Get("Content-Length"), 10, 64)
-			if supportsGzip && respLength > 200 {
+			if supportsGzip {
 
 				cw := newCompressWriter(w)
+				cw.Header().Set("Content-Encoding", "gzip")
 
 				ow = cw
 
