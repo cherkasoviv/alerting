@@ -18,7 +18,7 @@ func New(sugarLogger *zap.SugaredLogger) func(next http.Handler) http.Handler {
 			entry := sugarLogger.With(
 				zap.String("method", r.Method),
 				zap.String("path", r.URL.Path),
-				zap.String("Header", r.Header.Get("Accept-Encoding")),
+				zap.String("encoding", r.Header.Get("Accept-Encoding")),
 			)
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
