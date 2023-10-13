@@ -30,8 +30,8 @@ func TestGaugeMetric_GetName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gaugeMetric := &GaugeMetric{
-				GMetric: tt.fields.GMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.GMetric,
+				Value:  tt.fields.value,
 			}
 
 			assert.Equal(t, tt.want, gaugeMetric.GetName())
@@ -65,8 +65,8 @@ func TestGaugeMetric_GetValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gaugeMetric := &GaugeMetric{
-				GMetric: tt.fields.GMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.GMetric,
+				Value:  tt.fields.value,
 			}
 			assert.Equal(t, tt.want, gaugeMetric.GetValue())
 		})
@@ -98,8 +98,8 @@ func TestGaugeMetric_String(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gaugeMetric := &GaugeMetric{
-				GMetric: tt.fields.GMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.GMetric,
+				Value:  tt.fields.value,
 			}
 			assert.Equal(t, tt.want, gaugeMetric.String())
 		})
@@ -142,12 +142,12 @@ func TestGaugeMetric_UpdateValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gaugeMetric := &GaugeMetric{
-				GMetric: tt.fields.GMetric,
-				Value:   tt.fields.value,
+				Metric: tt.fields.GMetric,
+				Value:  tt.fields.value,
 			}
 			updatedMetric := &GaugeMetric{
-				GMetric: tt.newFields.GMetric,
-				Value:   tt.newFields.value,
+				Metric: tt.newFields.GMetric,
+				Value:  tt.newFields.value,
 			}
 			gaugeMetric.UpdateValue(tt.args.newValue)
 			assert.Equal(t, updatedMetric, gaugeMetric)

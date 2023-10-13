@@ -30,7 +30,7 @@ func TestInMemorystorage_FindAllMetrics(t *testing.T) {
 				storage map[string]metric.AbstractMetric
 			}{storage: map[string]metric.AbstractMetric{
 				"testMetric": &metric.GaugeMetric{
-					GMetric: struct {
+					Metric: struct {
 						Name  string
 						Mtype metric.MetricType
 					}{Name: "testMetric", Mtype: metric.Gauge},
@@ -39,7 +39,7 @@ func TestInMemorystorage_FindAllMetrics(t *testing.T) {
 			}},
 			want: map[string]metric.AbstractMetric{
 				"testMetric": &metric.GaugeMetric{
-					GMetric: struct {
+					Metric: struct {
 						Name  string
 						Mtype metric.MetricType
 					}{Name: "testMetric", Mtype: metric.Gauge},
