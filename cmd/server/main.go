@@ -16,8 +16,10 @@ func main() {
 
 	cfg := config.LoadServerConfig()
 	storage := mstorage.Initialize(cfg)
+	dbStorage := mstorage.InitializePgStorage(cfg)
 	updateHandler := handlers.NewUpdateHandler(storage)
 	valueHandler := handlers.NewValueHandler(storage)
+	pingHandler := handlers.NewPingHandler(dbStorage)
 
 	logger, err := zap.NewProduction()
 	if err != nil {
@@ -46,6 +48,9 @@ func main() {
 			})
 		})
 
+	})
+	r.Route("/ping", func(r chi.Router) {
+		r.Get("/", pingHandler.Ping())
 	})
 	err = http.ListenAndServe(cfg.Host, r)
 
