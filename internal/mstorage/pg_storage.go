@@ -77,9 +77,6 @@ func (storage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, 
 	metricRow := db.QueryRowContext(context.Background(), ""+
 		"SELECT name, type, value\nfrom public.metrics where name = $1",
 		name)
-	if err != nil {
-		return nil, false, err
-	}
 	var metricName, metricType, metricValue string
 	err = metricRow.Scan(&metricName, &metricType, &metricValue)
 	if err != nil {
