@@ -22,7 +22,7 @@ func main() {
 	valueHandler := handlers.NewValueHandler(storage)
 	pingHandler := handlers.NewPingHandler(storage)
 
-	if err != nil {
+	if cfg.DatabaseDSN == "" {
 		storageInMemory := mstorage.Initialize(cfg)
 		updateHandler = handlers.NewUpdateHandler(storageInMemory)
 		valueHandler = handlers.NewValueHandler(storageInMemory)
