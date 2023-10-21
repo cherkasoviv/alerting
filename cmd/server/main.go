@@ -16,7 +16,7 @@ func main() {
 
 	cfg := config.LoadServerConfig()
 
-	storage, err := mstorage.InitializePgStorage(cfg)
+	storage, _ := mstorage.InitializePgStorage(cfg)
 
 	updateHandler := handlers.NewUpdateHandler(storage)
 	valueHandler := handlers.NewValueHandler(storage)
