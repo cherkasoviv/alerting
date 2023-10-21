@@ -125,11 +125,9 @@ func (storage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, er
 	}
 	defer db.Close()
 
-	metricRows, err := db.QueryContext(context.Background(), ""+
+	metricRows, _ := db.QueryContext(context.Background(), ""+
 		"SELECT name, type, value\nfrom public.metrics")
-	if err != nil {
-		return nil, err
-	}
+
 	metricsToReturn := map[string]metric.AbstractMetric{}
 	for metricRows.Next() {
 		var metricName, metricType, metricValue string
