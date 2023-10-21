@@ -15,12 +15,18 @@ import (
 func main() {
 
 	cfg := config.LoadServerConfig()
-	storage := mstorage.Initialize(cfg)
-	dbStorage := mstorage.InitializePgStorage(cfg)
+
+	storage, err := mstorage.InitializePgStorage(cfg)
+
 	updateHandler := handlers.NewUpdateHandler(storage)
 	valueHandler := handlers.NewValueHandler(storage)
-	pingHandler := handlers.NewPingHandler(dbStorage)
+	pingHandler := handlers.NewPingHandler(storage)
 
+	if err != nil {
+		storageInMemory := mstorage.Initialize(cfg)
+		updateHandler = handlers.NewUpdateHandler(storageInMemory)
+		valueHandler = handlers.NewValueHandler(storageInMemory)
+	}
 	logger, err := zap.NewProduction()
 	if err != nil {
 		panic(err)

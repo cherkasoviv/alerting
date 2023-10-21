@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-type updateHandler struct {
+type UpdateHandler struct {
 	storage metricSaver
 }
 
@@ -31,11 +31,11 @@ type requestForJSONUpdateHandler struct {
 	Value float64 `json:"value,omitempty"`
 }
 
-func NewUpdateHandler(str metricSaver) *updateHandler {
-	return &updateHandler{storage: str}
+func NewUpdateHandler(str metricSaver) *UpdateHandler {
+	return &UpdateHandler{storage: str}
 }
 
-func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
+func (uhandler *UpdateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodPost {
@@ -108,7 +108,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 	}
 }
 
-func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
+func (uhandler *UpdateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 
