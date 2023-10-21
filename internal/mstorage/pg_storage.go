@@ -54,6 +54,9 @@ func (storage *PgStorage) HealthCheck() error {
 func (storage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
 	storage.mx.Lock()
 	db, err := sql.Open("pgx", storage.connString)
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 	defer storage.mx.Unlock()
 	_, err = db.ExecContext(context.Background(), ""+
@@ -66,6 +69,9 @@ func (storage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
 }
 func (storage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, error) {
 	db, err := sql.Open("pgx", storage.connString)
+	if err != nil {
+		return nil, false, err
+	}
 	defer db.Close()
 
 	metricRow := db.QueryRowContext(context.Background(), ""+
@@ -117,6 +123,9 @@ func (storage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, 
 
 func (storage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, error) {
 	db, err := sql.Open("pgx", storage.connString)
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	metricRows, err := db.QueryContext(context.Background(), ""+
