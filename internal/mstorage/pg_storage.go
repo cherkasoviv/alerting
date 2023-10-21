@@ -131,6 +131,11 @@ func (storage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, er
 	if err != nil {
 		return nil, err
 	}
+	err = metricRows.Err()
+
+	if err != nil {
+		return nil, err
+	}
 
 	metricsToReturn := map[string]metric.AbstractMetric{}
 	for metricRows.Next() {
