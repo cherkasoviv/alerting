@@ -100,8 +100,12 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 				}
 			}
 		}
-		newMetricValue.UpdateValue(metricRequestValue)
-		err := uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+		err := newMetricValue.UpdateValue(metricRequestValue)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
 
