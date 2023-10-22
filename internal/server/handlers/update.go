@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"alerting/internal/metrics"
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"net/http"
@@ -283,7 +282,6 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 				return
 			}
 			metricsToSave[newMetricValue.GetName()] = newMetricValue
-			fmt.Println(metricsToSave, newRequestValueForMetric)
 
 		}
 		err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
