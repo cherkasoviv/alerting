@@ -32,8 +32,8 @@ func InitializePgStorage(cfg *config.ServerConfig) (*PgStorage, error) {
 	return &storage, err
 }
 
-func (storage *PgStorage) HealthCheck() error {
-	db, err := sql.Open("pgx", storage.connString)
+func (pgStorage *PgStorage) HealthCheck() error {
+	db, err := sql.Open("pgx", pgStorage.connString)
 
 	if err != nil {
 		return err
@@ -51,14 +51,14 @@ func (storage *PgStorage) HealthCheck() error {
 
 }
 
-func (storage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
-	storage.mx.Lock()
-	db, err := sql.Open("pgx", storage.connString)
+func (pgStorage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
+	pgStorage.mx.Lock()
+	db, err := sql.Open("pgx", pgStorage.connString)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	defer storage.mx.Unlock()
+	defer pgStorage.mx.Unlock()
 	_, err = db.ExecContext(context.Background(), ""+
 		"INSERT INTO public.metrics VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE  SET value = $3", m.GetName(), m.GetType(), m.GetValue())
 	if err != nil {
@@ -67,8 +67,8 @@ func (storage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
 
 	return err
 }
-func (storage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, error) {
-	db, err := sql.Open("pgx", storage.connString)
+func (pgStorage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, error) {
+	db, err := sql.Open("pgx", pgStorage.connString)
 	if err != nil {
 		return nil, false, err
 	}
@@ -118,8 +118,8 @@ func (storage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, 
 	return nil, false, err
 }
 
-func (storage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, error) {
-	db, err := sql.Open("pgx", storage.connString)
+func (pgStorage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, error) {
+	db, err := sql.Open("pgx", pgStorage.connString)
 	if err != nil {
 		return nil, err
 	}
@@ -180,4 +180,31 @@ func (storage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, er
 	}
 
 	return metricsToReturn, nil
+}
+
+func (pgStorage *PgStorage) CreateOrUpdateSeveralMetrics(metrics []metric.AbstractMetric) error {
+	pgStorage.mx.Lock()
+	db, err := sql.Open("pgx", pgStorage.connString)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	defer pgStorage.mx.Unlock()
+
+	transaction, err := db.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	for _, m := range metrics {
+		_, err = transaction.ExecContext(context.Background(), ""+
+			"INSERT INTO public.metrics VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE  SET value = $3", m.GetName(), m.GetType(), m.GetValue())
+		if err != nil {
+			transaction.Rollback()
+			return err
+		}
+	}
+
+	return err
 }

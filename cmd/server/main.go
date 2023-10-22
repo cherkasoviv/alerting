@@ -58,6 +58,10 @@ func main() {
 	r.Route("/ping", func(r chi.Router) {
 		r.Get("/", pingHandler.Ping())
 	})
+
+	r.Route("/updates", func(r chi.Router) {
+		r.Post("/", updateHandler.CreateOrUpdateFromJSONArray())
+	})
 	err = http.ListenAndServe(cfg.Host, r)
 
 	if err != nil {

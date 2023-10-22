@@ -15,6 +15,7 @@ type UpdateHandler struct {
 type metricSaver interface {
 	CreateOrUpdateMetric(m metrics.AbstractMetric) error
 	FindMetric(name string) (metrics.AbstractMetric, bool, error)
+	CreateOrUpdateSeveralMetrics(metrics []metrics.AbstractMetric) error
 }
 
 type responseForJSONUpdateHandler struct {
@@ -202,6 +203,89 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 
 		}
 		render.JSON(w, r, resp)
+
+	}
+}
+
+func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		reqMetrics := []requestForJSONUpdateHandler{}
+		err := render.DecodeJSON(r.Body, &reqMetrics)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if len(reqMetrics) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		var metricsToSave []metrics.AbstractMetric
+
+		for _, req := range reqMetrics {
+
+			if len(req.ID) == 0 {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			metricRequestName := req.ID
+
+			var newMetricValue metrics.AbstractMetric
+			var newRequestValueForMetric string
+			switch req.MType {
+			case "counter":
+				{
+					var exists bool
+					newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
+					if !exists {
+						cMetric := metrics.Metric{
+							Name:  metricRequestName,
+							Mtype: metrics.Counter,
+						}
+						newMetricValue = &metrics.CounterMetric{
+							Metric: cMetric,
+						}
+
+					}
+					newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
+				}
+			case "gauge":
+				{
+
+					gMetric := metrics.Metric{
+						Name:  metricRequestName,
+						Mtype: metrics.Gauge,
+					}
+					newMetricValue = &metrics.GaugeMetric{
+						Metric: gMetric,
+					}
+
+					newRequestValueForMetric = strconv.FormatFloat(req.Value, 'f', 20, 64)
+				}
+			default:
+				{
+					http.Error(w, "Wrong metric type", http.StatusBadRequest)
+					return
+				}
+			}
+			err = newMetricValue.UpdateValue(newRequestValueForMetric)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			metricsToSave = append(metricsToSave, newMetricValue)
+
+		}
+		err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 
 	}
 }
