@@ -62,7 +62,7 @@ func (pgStorage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error 
 	_, err = db.ExecContext(context.Background(), ""+
 		"INSERT INTO public.metrics VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE  SET value = $3", m.GetName(), m.GetType(), m.GetValue())
 	if err != nil {
-		return err
+
 	}
 
 	return err
@@ -80,6 +80,7 @@ func (pgStorage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool
 	var metricName, metricType, metricValue string
 	err = metricRow.Scan(&metricName, &metricType, &metricValue)
 	if err != nil {
+
 		return nil, false, err
 	}
 	metricData := metric.Metric{
@@ -129,6 +130,7 @@ func (pgStorage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, 
 		"SELECT name, type, value\nfrom public.metrics")
 
 	if err != nil {
+
 		return nil, err
 	}
 	err = metricRows.Err()

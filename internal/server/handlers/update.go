@@ -2,10 +2,14 @@ package handlers
 
 import (
 	"alerting/internal/metrics"
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type UpdateHandler struct {
@@ -96,11 +100,19 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 				}
 			}
 		}
-		err := newMetricValue.UpdateValue(metricRequestValue)
-		uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+		newMetricValue.UpdateValue(metricRequestValue)
+		err := uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
 
-		if err != nil {
-			http.Error(w, "Wrong value", http.StatusBadRequest)
+			try := 1
+			for err != nil && try < 4 {
+				time.Sleep(time.Duration(2*(try-1)+1) * time.Second)
+				err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+				try++
+			}
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -174,10 +186,20 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 		}
 
 		err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
-		if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+
+			try := 1
+			for err != nil && try < 4 {
+				time.Sleep(time.Duration(2*(try-1)+1) * time.Second)
+				err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+				try++
+			}
+		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
 		metric, _, err := uhandler.storage.FindMetric(req.ID)
 
 		if err != nil {
@@ -285,10 +307,21 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 
 		}
 		err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
-		if err != nil {
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+
+			try := 1
+			for err != nil && try < 4 {
+				time.Sleep(time.Duration(2*(try-1)+1) * time.Second)
+				err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
+				try++
+			}
+		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 
 	}
