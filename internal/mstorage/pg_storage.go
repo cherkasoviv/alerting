@@ -182,7 +182,7 @@ func (pgStorage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, 
 	return metricsToReturn, nil
 }
 
-func (pgStorage *PgStorage) CreateOrUpdateSeveralMetrics(metrics []metric.AbstractMetric) error {
+func (pgStorage *PgStorage) CreateOrUpdateSeveralMetrics(metrics map[string]metric.AbstractMetric) error {
 
 	db, err := sql.Open("pgx", pgStorage.connString)
 	if err != nil {

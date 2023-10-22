@@ -16,7 +16,7 @@ type UpdateHandler struct {
 type metricSaver interface {
 	CreateOrUpdateMetric(m metrics.AbstractMetric) error
 	FindMetric(name string) (metrics.AbstractMetric, bool, error)
-	CreateOrUpdateSeveralMetrics(metrics []metrics.AbstractMetric) error
+	CreateOrUpdateSeveralMetrics(metrics map[string]metrics.AbstractMetric) error
 }
 
 type responseForJSONUpdateHandler struct {
@@ -215,7 +215,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 			return
 		}
 
-		reqMetrics := []requestForJSONUpdateHandler{}
+		var reqMetrics []requestForJSONUpdateHandler
 		err := render.DecodeJSON(r.Body, &reqMetrics)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -225,7 +225,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		var metricsToSave []metrics.AbstractMetric
+		var metricsToSave map[string]metrics.AbstractMetric
 
 		for _, req := range reqMetrics {
 
@@ -240,18 +240,22 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 			switch req.MType {
 			case "counter":
 				{
-					var exists bool
-					newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
-					if !exists {
-						cMetric := metrics.Metric{
-							Name:  metricRequestName,
-							Mtype: metrics.Counter,
-						}
-						newMetricValue = &metrics.CounterMetric{
-							Metric: cMetric,
-						}
+					var exists, hasBeenInBatch bool
+					newMetricValue, hasBeenInBatch = metricsToSave[req.ID]
+					if !hasBeenInBatch {
+						newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
+						if !exists {
+							cMetric := metrics.Metric{
+								Name:  metricRequestName,
+								Mtype: metrics.Counter,
+							}
+							newMetricValue = &metrics.CounterMetric{
+								Metric: cMetric,
+							}
 
+						}
 					}
+
 					newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
 				}
 			case "gauge":
@@ -278,7 +282,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			metricsToSave = append(metricsToSave, newMetricValue)
+			metricsToSave[newMetricValue.GetName()] = newMetricValue
 			fmt.Println(metricsToSave, newRequestValueForMetric)
 
 		}
