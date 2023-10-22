@@ -111,7 +111,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 				err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
 				try++
 			}
-		} else {
+		} else if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -195,7 +195,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 				err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
 				try++
 			}
-		} else {
+		} else if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -317,7 +317,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 				err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
 				try++
 			}
-		} else {
+		} else if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

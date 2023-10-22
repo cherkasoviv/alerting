@@ -61,9 +61,6 @@ func (pgStorage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error 
 	defer pgStorage.mx.Unlock()
 	_, err = db.ExecContext(context.Background(), ""+
 		"INSERT INTO public.metrics VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE  SET value = $3", m.GetName(), m.GetType(), m.GetValue())
-	if err != nil {
-
-	}
 
 	return err
 }
