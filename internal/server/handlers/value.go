@@ -67,7 +67,7 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req requestForJSONValueHandler
 		err := render.DecodeJSON(r.Body, &req)
-		fmt.Println(r.Body)
+		fmt.Println(req)
 		if err != nil || len(req.ID) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
