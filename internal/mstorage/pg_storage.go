@@ -205,6 +205,7 @@ func (pgStorage *PgStorage) CreateOrUpdateSeveralMetrics(metrics []metric.Abstra
 			return err
 		}
 	}
+	err = transaction.Commit()
 
 	return err
 }
