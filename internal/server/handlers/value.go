@@ -75,16 +75,14 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 
 		findMetric, exist, err := vhandler.storage.FindMetric(req.ID)
 
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		if !exist {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		if findMetric.GetType() != req.MType {
 			w.WriteHeader(http.StatusNotFound)
 			return
