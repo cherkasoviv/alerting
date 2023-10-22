@@ -225,7 +225,7 @@ func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		var metricsToSave map[string]metrics.AbstractMetric
+		metricsToSave := map[string]metrics.AbstractMetric{}
 
 		for _, req := range reqMetrics {
 
