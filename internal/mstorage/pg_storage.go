@@ -25,11 +25,12 @@ func InitializePgStorage(cfg *config.ServerConfig) (*PgStorage, error) {
 	if err != nil {
 		return nil, err
 	}
-	storage.db.ExecContext(context.Background(),
+	_, err = storage.db.ExecContext(context.Background(),
 		`create table if not exists public.metrics
 			    (name  varchar(50)  not null constraint metrics_pk primary key,
 			    type  varchar(50)  not null,
 			    value varchar(50) not null);`)
+
 	if err != nil {
 		return nil, err
 	}
