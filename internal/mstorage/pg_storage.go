@@ -14,18 +14,22 @@ import (
 type PgStorage struct {
 	connString string
 	mx         sync.Mutex
+	db         *sql.DB
 }
 
 func InitializePgStorage(cfg *config.ServerConfig) (*PgStorage, error) {
 	storage := PgStorage{connString: cfg.DatabaseDSN}
-	db, err := sql.Open("pgx", storage.connString)
-	db.ExecContext(context.Background(), ""+
+	storage.db, _ = sql.Open("pgx", storage.connString)
+	_, err := storage.db.ExecContext(context.Background(),
 		"create schema if not exists public;")
-	db.ExecContext(context.Background(),
-		"create table if not exists public.metrics"+
-			"    (name  varchar(50)  not null constraint metrics_pk primary key,"+
-			"    type  varchar(50)  not null,"+
-			"    value varchar(50) not null);")
+	if err != nil {
+		return nil, err
+	}
+	storage.db.ExecContext(context.Background(),
+		`create table if not exists public.metrics
+			    (name  varchar(50)  not null constraint metrics_pk primary key,
+			    type  varchar(50)  not null,
+			    value varchar(50) not null);`)
 	if err != nil {
 		return nil, err
 	}
@@ -33,17 +37,10 @@ func InitializePgStorage(cfg *config.ServerConfig) (*PgStorage, error) {
 }
 
 func (pgStorage *PgStorage) HealthCheck() error {
-	db, err := sql.Open("pgx", pgStorage.connString)
-
-	if err != nil {
-		return err
-	}
-
-	defer db.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	if err = db.PingContext(ctx); err != nil {
+	if err := pgStorage.db.PingContext(ctx); err != nil {
 		return err
 	}
 
@@ -53,29 +50,19 @@ func (pgStorage *PgStorage) HealthCheck() error {
 
 func (pgStorage *PgStorage) CreateOrUpdateMetric(m metric.AbstractMetric) error {
 	pgStorage.mx.Lock()
-	db, err := sql.Open("pgx", pgStorage.connString)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
+
 	defer pgStorage.mx.Unlock()
-	_, err = db.ExecContext(context.Background(), ""+
+	_, err := pgStorage.db.ExecContext(context.Background(), ""+
 		"INSERT INTO public.metrics VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE  SET value = $3", m.GetName(), m.GetType(), m.GetValue())
 
 	return err
 }
 func (pgStorage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool, error) {
-	db, err := sql.Open("pgx", pgStorage.connString)
-	if err != nil {
-		return nil, false, err
-	}
-	defer db.Close()
-
-	metricRow := db.QueryRowContext(context.Background(), ""+
+	metricRow := pgStorage.db.QueryRowContext(context.Background(),
 		"SELECT name, type, value\nfrom public.metrics where name = $1",
 		name)
 	var metricName, metricType, metricValue string
-	err = metricRow.Scan(&metricName, &metricType, &metricValue)
+	err := metricRow.Scan(&metricName, &metricType, &metricValue)
 	if err != nil {
 
 		return nil, false, err
@@ -117,13 +104,8 @@ func (pgStorage *PgStorage) FindMetric(name string) (metric.AbstractMetric, bool
 }
 
 func (pgStorage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, error) {
-	db, err := sql.Open("pgx", pgStorage.connString)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
 
-	metricRows, err := db.QueryContext(context.Background(), ""+
+	metricRows, err := pgStorage.db.QueryContext(context.Background(),
 		"SELECT name, type, value\nfrom public.metrics")
 
 	if err != nil {
@@ -183,20 +165,14 @@ func (pgStorage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, 
 
 func (pgStorage *PgStorage) CreateOrUpdateSeveralMetrics(metrics map[string]metric.AbstractMetric) error {
 
-	db, err := sql.Open("pgx", pgStorage.connString)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	transaction, err := db.Begin()
+	transaction, err := pgStorage.db.Begin()
 
 	if err != nil {
 		return err
 	}
 
 	for _, m := range metrics {
-		_, err = transaction.ExecContext(context.Background(), ""+
+		_, err = transaction.ExecContext(context.Background(),
 			"INSERT INTO public.metrics VALUES ($1, $2, $3) ON CONFLICT (name) DO UPDATE  SET value = $3", m.GetName(), m.GetType(), m.GetValue())
 		if err != nil {
 			transaction.Rollback()
