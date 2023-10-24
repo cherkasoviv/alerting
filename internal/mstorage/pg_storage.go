@@ -165,7 +165,9 @@ func (pgStorage *PgStorage) FindAllMetrics() (map[string]metric.AbstractMetric, 
 }
 
 func (pgStorage *PgStorage) CreateOrUpdateSeveralMetrics(metrics map[string]metric.AbstractMetric) error {
+	pgStorage.mx.Lock()
 
+	defer pgStorage.mx.Unlock()
 	transaction, err := pgStorage.db.Begin()
 
 	if err != nil {
