@@ -67,38 +67,37 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req requestForJSONValueHandler
 		err := render.DecodeJSON(r.Body, &req)
+		fmt.Println(req)
 		if err != nil || len(req.ID) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		metric, exist, err := vhandler.storage.FindMetric(req.ID)
-
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+		findMetric, exist, err := vhandler.storage.FindMetric(req.ID)
 
 		if !exist {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-
-		if metric.GetType() != req.MType {
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		if findMetric.GetType() != req.MType {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
 		resp := responseForJSONValueHandler{
-			ID:    metric.GetName(),
-			MType: metric.GetType(),
+			ID:    findMetric.GetName(),
+			MType: findMetric.GetType(),
 		}
 
-		switch metric.GetType() {
+		switch findMetric.GetType() {
 		case "gauge":
 			{
 
-				val, err := strconv.ParseFloat(metric.GetValue(), 64)
+				val, err := strconv.ParseFloat(findMetric.GetValue(), 64)
 				resp.Value = &val
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
@@ -107,7 +106,7 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 			}
 		case "counter":
 			{
-				val, err := strconv.ParseInt(metric.GetValue(), 10, 64)
+				val, err := strconv.ParseInt(findMetric.GetValue(), 10, 64)
 				resp.Delta = &val
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
@@ -116,7 +115,6 @@ func (vhandler *valueHandler) GetJSON() http.HandlerFunc {
 			}
 
 		}
-		fmt.Println(resp)
 
 		render.JSON(w, r, resp)
 

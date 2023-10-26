@@ -11,6 +11,7 @@ type ServerConfig struct {
 	StoreInterval   int
 	FileStoragePath string
 	NeedToRestore   bool
+	DatabaseDSN     string
 }
 
 func (cfg *ServerConfig) parseFlags() {
@@ -19,6 +20,7 @@ func (cfg *ServerConfig) parseFlags() {
 	flag.IntVar(&cfg.StoreInterval, "i", 300, "backup period for inmemory db")
 	flag.StringVar(&cfg.FileStoragePath, "f", "/tmp/metrics-db.json", "backup path")
 	flag.BoolVar(&cfg.NeedToRestore, "r", true, "need backup true/false")
+	flag.StringVar(&cfg.DatabaseDSN, "d", "", "database connection string")
 	flag.Parse()
 
 	if cfg.FileStoragePath != "" {
@@ -48,6 +50,10 @@ func (cfg *ServerConfig) parseEnv() {
 		if err == nil {
 			cfg.NeedToRestore = restore
 		}
+	}
+
+	if envDatabaseConnectionString := os.Getenv("DATABASE_DSN"); envDatabaseConnectionString != "" {
+		cfg.DatabaseDSN = envDatabaseConnectionString
 	}
 }
 

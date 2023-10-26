@@ -129,3 +129,14 @@ func (st *InMemoryStorage) saveToFile() error {
 
 	return err
 }
+
+func (st *InMemoryStorage) CreateOrUpdateSeveralMetrics(metrics map[string]metric.AbstractMetric) error {
+	for _, m := range metrics {
+		err := st.CreateOrUpdateMetric(m)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
+}

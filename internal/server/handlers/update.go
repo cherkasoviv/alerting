@@ -2,19 +2,24 @@ package handlers
 
 import (
 	"alerting/internal/metrics"
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"net/http"
 	"strconv"
+	"time"
 )
 
-type updateHandler struct {
+type UpdateHandler struct {
 	storage metricSaver
 }
 
 type metricSaver interface {
 	CreateOrUpdateMetric(m metrics.AbstractMetric) error
 	FindMetric(name string) (metrics.AbstractMetric, bool, error)
+	CreateOrUpdateSeveralMetrics(metrics map[string]metrics.AbstractMetric) error
 }
 
 type responseForJSONUpdateHandler struct {
@@ -31,11 +36,11 @@ type requestForJSONUpdateHandler struct {
 	Value float64 `json:"value,omitempty"`
 }
 
-func NewUpdateHandler(str metricSaver) *updateHandler {
-	return &updateHandler{storage: str}
+func NewUpdateHandler(str metricSaver) *UpdateHandler {
+	return &UpdateHandler{storage: str}
 }
 
-func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
+func (uhandler *UpdateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodPost {
@@ -96,10 +101,22 @@ func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 			}
 		}
 		err := newMetricValue.UpdateValue(metricRequestValue)
-		uhandler.storage.CreateOrUpdateMetric(newMetricValue)
-
 		if err != nil {
-			http.Error(w, "Wrong value", http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+
+			try := 1
+			for err != nil && try < 4 {
+				time.Sleep(time.Duration(2*(try-1)+1) * time.Second)
+				err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+				try++
+			}
+		} else if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -108,7 +125,7 @@ func (uhandler *updateHandler) CreateOrUpdateFromURLPath() http.HandlerFunc {
 	}
 }
 
-func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
+func (uhandler *UpdateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 
@@ -173,10 +190,20 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 		}
 
 		err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
-		if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+
+			try := 1
+			for err != nil && try < 4 {
+				time.Sleep(time.Duration(2*(try-1)+1) * time.Second)
+				err = uhandler.storage.CreateOrUpdateMetric(newMetricValue)
+				try++
+			}
+		} else if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
 		metric, _, err := uhandler.storage.FindMetric(req.ID)
 
 		if err != nil {
@@ -202,6 +229,104 @@ func (uhandler *updateHandler) CreateOrUpdateFromJSON() http.HandlerFunc {
 
 		}
 		render.JSON(w, r, resp)
+
+	}
+}
+
+func (uhandler *UpdateHandler) CreateOrUpdateFromJSONArray() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		var reqMetrics []requestForJSONUpdateHandler
+		err := render.DecodeJSON(r.Body, &reqMetrics)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if len(reqMetrics) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		metricsToSave := map[string]metrics.AbstractMetric{}
+
+		for _, req := range reqMetrics {
+
+			if len(req.ID) == 0 {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			metricRequestName := req.ID
+
+			var newMetricValue metrics.AbstractMetric
+			var newRequestValueForMetric string
+			switch req.MType {
+			case "counter":
+				{
+					var exists, hasBeenInBatch bool
+					newMetricValue, hasBeenInBatch = metricsToSave[req.ID]
+					if !hasBeenInBatch {
+						newMetricValue, exists, _ = uhandler.storage.FindMetric(metricRequestName)
+						if !exists {
+							cMetric := metrics.Metric{
+								Name:  metricRequestName,
+								Mtype: metrics.Counter,
+							}
+							newMetricValue = &metrics.CounterMetric{
+								Metric: cMetric,
+							}
+
+						}
+					}
+
+					newRequestValueForMetric = strconv.FormatInt(req.Delta, 10)
+				}
+			case "gauge":
+				{
+
+					gMetric := metrics.Metric{
+						Name:  metricRequestName,
+						Mtype: metrics.Gauge,
+					}
+					newMetricValue = &metrics.GaugeMetric{
+						Metric: gMetric,
+					}
+
+					newRequestValueForMetric = strconv.FormatFloat(req.Value, 'f', 20, 64)
+				}
+			default:
+				{
+					http.Error(w, "Wrong metric type", http.StatusBadRequest)
+					return
+				}
+			}
+			err = newMetricValue.UpdateValue(newRequestValueForMetric)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			metricsToSave[newMetricValue.GetName()] = newMetricValue
+
+		}
+		err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) {
+
+			try := 1
+			for err != nil && try < 4 {
+				time.Sleep(time.Duration(2*(try-1)+1) * time.Second)
+				err = uhandler.storage.CreateOrUpdateSeveralMetrics(metricsToSave)
+				try++
+			}
+		} else if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
 
 	}
 }

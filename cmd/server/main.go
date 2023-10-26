@@ -15,10 +15,18 @@ import (
 func main() {
 
 	cfg := config.LoadServerConfig()
-	storage := mstorage.Initialize(cfg)
+
+	storage, _ := mstorage.InitializePgStorage(cfg)
+
 	updateHandler := handlers.NewUpdateHandler(storage)
 	valueHandler := handlers.NewValueHandler(storage)
+	pingHandler := handlers.NewPingHandler(storage)
 
+	if cfg.DatabaseDSN == "" {
+		storageInMemory := mstorage.Initialize(cfg)
+		updateHandler = handlers.NewUpdateHandler(storageInMemory)
+		valueHandler = handlers.NewValueHandler(storageInMemory)
+	}
 	logger, err := zap.NewProduction()
 	if err != nil {
 		panic(err)
@@ -46,6 +54,13 @@ func main() {
 			})
 		})
 
+	})
+	r.Route("/ping", func(r chi.Router) {
+		r.Get("/", pingHandler.Ping())
+	})
+
+	r.Route("/updates", func(r chi.Router) {
+		r.Post("/", updateHandler.CreateOrUpdateFromJSONArray())
 	})
 	err = http.ListenAndServe(cfg.Host, r)
 
