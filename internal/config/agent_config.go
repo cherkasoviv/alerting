@@ -42,6 +42,7 @@ type AgentConfig struct {
 	PollInterval     int
 	GaugeMetricsList []string
 	HashSHA256Key    string
+	RateLimit        int
 }
 
 func (cfg *AgentConfig) parseFlags() {
@@ -50,6 +51,7 @@ func (cfg *AgentConfig) parseFlags() {
 	flag.IntVar(&cfg.ReportInterval, "r", 10, "frequency of reporting metrics to server")
 	flag.IntVar(&cfg.PollInterval, "p", 2, "frequency of recording metrics in agent")
 	flag.StringVar(&cfg.HashSHA256Key, "k", "", "hash key")
+	flag.IntVar(&cfg.RateLimit, "l", 1, "number of metric senders")
 	flag.Parse()
 
 }
@@ -70,6 +72,10 @@ func (cfg *AgentConfig) parseEnv() {
 	if envHashSHA256Key := os.Getenv("KEY"); envHashSHA256Key != "" {
 		cfg.HashSHA256Key = envHashSHA256Key
 	}
+
+	if envRateLimit, err := strconv.Atoi(os.Getenv("RATE_LIMIT")); envRateLimit != 0 && err == nil {
+		cfg.RateLimit = envRateLimit
+	}
 }
 
 func LoadAgentConfig() *AgentConfig {
@@ -79,6 +85,7 @@ func LoadAgentConfig() *AgentConfig {
 		PollInterval:     0,
 		GaugeMetricsList: []string{},
 		HashSHA256Key:    "",
+		RateLimit:        1,
 	}
 
 	cfg.parseFlags()
