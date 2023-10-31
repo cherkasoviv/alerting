@@ -5,6 +5,7 @@ import (
 	"alerting/internal/mstorage"
 	"alerting/internal/server/handlers"
 	"alerting/internal/server/middleware/compress"
+	"alerting/internal/server/middleware/hash"
 	mwLogger "alerting/internal/server/middleware/logger"
 	_ "encoding/json"
 	"github.com/go-chi/chi/v5"
@@ -38,6 +39,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(mwLogger.New(&sugar))
 	r.Use(compress.GzipMiddleware())
+	r.Use(hash.Hash256Middleware(cfg.HashSHA256Key))
 	r.Route("/update", func(r chi.Router) {
 		r.Post("/", updateHandler.CreateOrUpdateFromJSON())
 		r.Route("/{metricType}/{metricName}/{metricValue}", func(r chi.Router) {
