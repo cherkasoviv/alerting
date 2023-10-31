@@ -12,9 +12,9 @@ func Hash256Middleware(key string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ow := w
+			requestHashSHA256 := r.Header.Get("Hash")
+			if key != "" && (requestHashSHA256 != "" || requestHashSHA256 != "none") {
 
-			if key != "" {
-				requestHashSHA256 := r.Header.Get("Hash")
 				fmt.Println(requestHashSHA256)
 				fmt.Println(key)
 				b, err := io.ReadAll(r.Body)
