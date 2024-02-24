@@ -29,7 +29,7 @@ type jsonMetric struct {
 func Initialize(cfg *config.ServerConfig) *InMemoryStorage {
 
 	str := map[string]jsonMetric{}
-	stor := map[string]metric.AbstractMetric{}
+	store := map[string]metric.AbstractMetric{}
 	if cfg.NeedToRestore && cfg.FileStoragePath != "" {
 		storageFromFile, _ := os.ReadFile(cfg.FileStoragePath)
 		err := json.Unmarshal(storageFromFile, &str)
@@ -43,7 +43,7 @@ func Initialize(cfg *config.ServerConfig) *InMemoryStorage {
 		case metric.Gauge:
 			{
 				v, _ := strconv.ParseFloat(string(m.Value), 64)
-				stor[n] = &metric.GaugeMetric{
+				store[n] = &metric.GaugeMetric{
 					Metric: m.Metric,
 					Value:  v,
 				}
@@ -52,7 +52,7 @@ func Initialize(cfg *config.ServerConfig) *InMemoryStorage {
 			{
 				v, _ := strconv.ParseUint(string(m.Value), 10, 64)
 
-				stor[n] = &metric.CounterMetric{
+				store[n] = &metric.CounterMetric{
 					Metric: m.Metric,
 					Value:  v,
 				}
@@ -63,7 +63,7 @@ func Initialize(cfg *config.ServerConfig) *InMemoryStorage {
 	}
 
 	var memStorage = InMemoryStorage{
-		storage: stor}
+		storage: store}
 	if cfg.StoreInterval > 0 && cfg.FileStoragePath != "" {
 
 		memStorage.needPeriodicSave = true

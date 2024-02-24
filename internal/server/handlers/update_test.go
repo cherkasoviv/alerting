@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestMetricHandler_UpdateRequest(t *testing.T) {
+func TestMetricHandlerUpdateRequest(t *testing.T) {
 	cfg := config.ServerConfig{
 		Host:            "",
 		StoreInterval:   0,
@@ -54,7 +54,7 @@ func TestMetricHandler_UpdateRequest(t *testing.T) {
 	}
 }
 
-func Test_updateHandler_CreateOrUpdateFromJSON(t *testing.T) {
+func TestUpdateHandlerCreateOrUpdateFromJSON(t *testing.T) {
 	cfg := config.ServerConfig{
 		Host:            "",
 		StoreInterval:   0,
