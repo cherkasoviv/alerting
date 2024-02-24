@@ -12,6 +12,7 @@ type ServerConfig struct {
 	FileStoragePath string
 	NeedToRestore   bool
 	DatabaseDSN     string
+	HashSHA256Key   string
 }
 
 func (cfg *ServerConfig) parseFlags() {
@@ -21,6 +22,7 @@ func (cfg *ServerConfig) parseFlags() {
 	flag.StringVar(&cfg.FileStoragePath, "f", "/tmp/metrics-db.json", "backup path")
 	flag.BoolVar(&cfg.NeedToRestore, "r", true, "need backup true/false")
 	flag.StringVar(&cfg.DatabaseDSN, "d", "", "database connection string")
+	flag.StringVar(&cfg.HashSHA256Key, "k", "", "hash key")
 	flag.Parse()
 
 	if cfg.FileStoragePath != "" {
@@ -55,11 +57,17 @@ func (cfg *ServerConfig) parseEnv() {
 	if envDatabaseConnectionString := os.Getenv("DATABASE_DSN"); envDatabaseConnectionString != "" {
 		cfg.DatabaseDSN = envDatabaseConnectionString
 	}
+
+	if envHashSHA256Key := os.Getenv("KEY"); envHashSHA256Key != "" {
+		cfg.HashSHA256Key = envHashSHA256Key
+	}
 }
 
 func LoadServerConfig() *ServerConfig {
 	cfg := ServerConfig{
-		Host: "",
+		Host:          "",
+		DatabaseDSN:   "",
+		HashSHA256Key: "",
 	}
 	cfg.parseFlags()
 	cfg.parseEnv()
