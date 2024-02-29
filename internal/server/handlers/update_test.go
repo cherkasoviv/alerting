@@ -127,15 +127,13 @@ func BenchmarkUpdateHandlerCreateOrUpdateFromJSON(b *testing.B) {
 	defer ts.Close()
 
 	testCase := struct {
-		name                 string
-		method               string
-		requestURL           string
-		expectedCode         int
-		requestJSON          string
-		expectedResponseJSON string
-	}{name: "success gauge", method: http.MethodPost, requestURL: "/update", expectedCode: http.StatusOK,
-		requestJSON:          "{\"id\":\"testGauge\" , \"type\": \"gauge\",\"value\":1}\n}",
-		expectedResponseJSON: "{\"id\":\"testGauge\",\"type\":\"gauge\",\"value\":1}\n"}
+		method     string
+		requestURL string
+
+		requestJSON string
+	}{method: http.MethodPost, requestURL: "/update",
+		requestJSON: "{\"id\":\"testGauge\" , \"type\": \"gauge\",\"value\":1}\n}",
+	}
 
 	for i := 0; i < b.N; i++ {
 
