@@ -106,3 +106,43 @@ func TestUpdateHandlerCreateOrUpdateFromJSON(t *testing.T) {
 	}
 
 }
+
+func BenchmarkUpdateHandlerCreateOrUpdateFromJSON(b *testing.B) {
+	cfg := config.ServerConfig{
+		Host:            "",
+		StoreInterval:   0,
+		FileStoragePath: "",
+		NeedToRestore:   false,
+	}
+	storage := mstorage.Initialize(&cfg)
+	updateHandler := NewUpdateHandler(storage)
+
+	r := chi.NewRouter()
+	r.Route("/update", func(r chi.Router) {
+		r.Post("/", updateHandler.CreateOrUpdateFromJSON())
+	})
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	testCase := struct {
+		name                 string
+		method               string
+		requestURL           string
+		expectedCode         int
+		requestJSON          string
+		expectedResponseJSON string
+	}{name: "success gauge", method: http.MethodPost, requestURL: "/update", expectedCode: http.StatusOK,
+		requestJSON:          "{\"id\":\"testGauge\" , \"type\": \"gauge\",\"value\":1}\n}",
+		expectedResponseJSON: "{\"id\":\"testGauge\",\"type\":\"gauge\",\"value\":1}\n"}
+
+	for i := 0; i < b.N; i++ {
+
+		req := resty.New().R()
+		req.Method = testCase.method
+		req.URL = ts.URL + testCase.requestURL
+		req.SetBody(testCase.requestJSON)
+		req.Send()
+
+	}
+}
