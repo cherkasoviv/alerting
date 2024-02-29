@@ -3,13 +3,14 @@ package handlers
 import (
 	"alerting/internal/metrics"
 	"errors"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type UpdateHandler struct {

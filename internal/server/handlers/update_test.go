@@ -3,12 +3,13 @@ package handlers
 import (
 	"alerting/internal/config"
 	mstorage "alerting/internal/mstorage"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-resty/resty/v2"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-resty/resty/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMetricHandlerUpdateRequest(t *testing.T) {
@@ -105,4 +106,42 @@ func TestUpdateHandlerCreateOrUpdateFromJSON(t *testing.T) {
 		})
 	}
 
+}
+
+func BenchmarkUpdateHandlerCreateOrUpdateFromJSON(b *testing.B) {
+	cfg := config.ServerConfig{
+		Host:            "",
+		StoreInterval:   0,
+		FileStoragePath: "",
+		NeedToRestore:   false,
+	}
+	storage := mstorage.Initialize(&cfg)
+	updateHandler := NewUpdateHandler(storage)
+
+	r := chi.NewRouter()
+	r.Route("/update", func(r chi.Router) {
+		r.Post("/", updateHandler.CreateOrUpdateFromJSON())
+	})
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	testCase := struct {
+		method     string
+		requestURL string
+
+		requestJSON string
+	}{method: http.MethodPost, requestURL: "/update",
+		requestJSON: "{\"id\":\"testGauge\" , \"type\": \"gauge\",\"value\":1}\n}",
+	}
+
+	for i := 0; i < b.N; i++ {
+
+		req := resty.New().R()
+		req.Method = testCase.method
+		req.URL = ts.URL + testCase.requestURL
+		req.SetBody(testCase.requestJSON)
+		req.Send()
+
+	}
 }

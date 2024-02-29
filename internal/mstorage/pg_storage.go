@@ -5,10 +5,11 @@ import (
 	metric "alerting/internal/metrics"
 	"context"
 	"database/sql"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"strconv"
 	"sync"
 	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PgStorage struct {

@@ -1,10 +1,11 @@
 package logger
 
 import (
-	"github.com/go-chi/chi/v5/middleware"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
+
+	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 )
 
 func New(sugarLogger *zap.SugaredLogger) func(next http.Handler) http.Handler {

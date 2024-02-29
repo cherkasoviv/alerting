@@ -3,10 +3,11 @@ package handlers
 import (
 	metric "alerting/internal/metrics"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 )
 
 type valueHandler struct {
