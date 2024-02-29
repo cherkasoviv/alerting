@@ -11,7 +11,6 @@ import (
 	"expvar"
 	"net/http"
 	"net/http/pprof"
-	_ "net/http/pprof"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// Список метрик для сбора агентом
 var RuntimeGaugeMetrics = []string{
 	"Alloc",
 	"BuckHashSys",
@@ -36,6 +37,7 @@ var RuntimeGaugeMetrics = []string{
 	"TotalAlloc",
 }
 
+// Конфиг агента
 type AgentConfig struct {
 	ServerURL        string
 	ReportInterval   int

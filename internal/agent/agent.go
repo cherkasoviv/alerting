@@ -19,6 +19,7 @@ type metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
+// Запуск и сборка метрик согласно списка
 func CollectMetrics(cfg *config.AgentConfig) {
 	var currentStats runtime.MemStats
 	var fieldValue string
