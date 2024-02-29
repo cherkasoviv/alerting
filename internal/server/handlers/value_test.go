@@ -4,12 +4,13 @@ import (
 	"alerting/internal/config"
 	"alerting/internal/metrics"
 	"alerting/internal/mstorage"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-resty/resty/v2"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-resty/resty/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_valueHandler_GetJSON(t *testing.T) {

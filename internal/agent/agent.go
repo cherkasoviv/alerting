@@ -3,12 +3,13 @@ package agent
 import (
 	"alerting/internal/config"
 	"encoding/json"
-	"github.com/go-resty/resty/v2"
 	"math/rand"
 	"reflect"
 	"runtime"
 	"strconv"
 	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type metrics struct {

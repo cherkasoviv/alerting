@@ -9,12 +9,13 @@ import (
 	mwLogger "alerting/internal/server/middleware/logger"
 	_ "encoding/json"
 	"expvar"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/pprof"
 	_ "net/http/pprof"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 )
 
 func main() {
